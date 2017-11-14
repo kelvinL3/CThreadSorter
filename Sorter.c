@@ -9,21 +9,7 @@
 #include <errno.h>
 #include "Sorter.h"
 
-/*
-EC2
-free everything that is malloced/calloced
-check metadata
-	Initial PID: XXXXX
-	PIDS of all child processes: AAA,BBB,CCC,DDD,EEE,FFF, etc
-	Total number of processes: ZZZZZ
-
-
-*/
-
 int main(int argc, char **argv) {
-	//example of input
-	//./sorter -c  movie_title -d thisdir -o thatdir
-	//0        1   2           3  4       5  6
 	if (argc % 2 != 1) {
 		printf("Error, command line missing parameter\n");
 		return 0;
