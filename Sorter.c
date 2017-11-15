@@ -404,12 +404,12 @@ int parseDir(char *inputDir, char *outputDir, char *sortBy)
 			
 			pthread_t tid;
 			printf("Before Thread\n");
-			struct sortFileArguments * sortFileParameters = (struct sortFileArguments *) malloc(sizeof(struct sortFileArguments));
+			struct sortFileArguments *sortFileParameters = (struct sortFileArguments *) malloc(sizeof(struct sortFileArguments));
 			sortFileParameters->inputDir = inputDir;
 			sortFileParameters->outputDir = outputDir;
 			sortFileParameters->fileName = pDirent->d_name;
 			sortFileParameters->sortBy = sortBy;
-			pthread_create(&tid, NULL, threadExecuteSortFile, (void *)sortFileArguments);
+			pthread_create(&tid, NULL, threadExecuteSortFile, (void *)sortFileParameters);
 			
 			if (threadIndex<numChildThreads)
 			{
@@ -441,11 +441,11 @@ int parseDir(char *inputDir, char *outputDir, char *sortBy)
 			
 			pthread_t tid;
 			printf("Before Thread\n");
-			struct sortDirArguments *sortDirParameters = (struct sortFileArguments *) malloc(sizeof(struct sortFileArguments));
+			struct sortDirArguments *sortDirParameters = (struct sortDirArguments *) malloc(sizeof(struct sortDirArguments));
 			sortDirParameters->subDir = subDir;
 			sortDirParameters->outputDir = outputDir;
 			sortDirParameters->sortBy = sortBy;
-			pthread_create(&tid, NULL, threadExecuteDirectory, (void *)sortDirArguments);
+			pthread_create(&tid, NULL, threadExecuteDirectory, (void *)sortDirParameters);
 			
 			
 			if (threadIndex<numChildThreads)
