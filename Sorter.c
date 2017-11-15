@@ -16,13 +16,20 @@ int main(int argc, char **argv) {
 	} else if (argc<2) {
 		printf("Usage: ./program -c <column> -d <dirname> -o <output dirname>\n");
 		return 0;
+	} else if (argc>7) {
+		printf("Too many arguments.  Usage: ./program -c <column> -d <dirname> -o <output dirname>\n");
+		return 0;
 	}
 	
+	
+	char *query = NULL;
 	char *directory = NULL; 
 	char *outputDirectory = NULL;
 	int i;
 	for (i=3;i<argc;i+=2) {
-		if (!strcmp(argv[i],"-d")) {
+		if (!strcmp(argv[i],"-c")) {
+			query = argv[i+1];
+		} else if (!strcmp(argv[i],"-d")) {
 			directory = argv[i+1];
 		} else if (!strcmp(argv[i],"-o")) {
 			outputDirectory = argv[i+1];
@@ -40,7 +47,7 @@ int main(int argc, char **argv) {
 	//METADATA, DO NOT DELETE
 	printf("Initial PID: %d\nPIDS of all child processes: ", getpid());
 	fflush(stdout);
-	int totalNumProcesses = parseDir(directory, outputDirectory, argv[2]);
+	int totalNumProcesses = parseDir(directory, outputDirectory, query);
 	printf("\nTotal number of processes %d\n", totalNumProcesses);
 	
 	return 0;
