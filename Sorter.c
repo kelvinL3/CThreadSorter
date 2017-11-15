@@ -69,7 +69,7 @@ int main(int argc, char **argv)
 
 
 	//Merge all CSVs and print to AllFiles-sorted-column.csv
-	struct csv *mergedCSV = mergeCSVs(files, currentFile);
+	struct csv *mergedCSV = mergeCSVs(files, currentFile, query);
 	char *outputLocation;
 	if (outputDirectory != NULL) {
 		outputLocation = calloc(1, (strlen("/AllFiles-Sorted-") + strlen(outputDirectory) + strlen(argv[2]) + 1) * sizeof(char));
@@ -616,9 +616,142 @@ int sortFile(char *inputDir, char *outputDir, char *fileName, char *sortBy)
 	return 1;
 }
 
-struct csv *mergeCSVs(struct csv **csvs, unsigned int size) 
-{
-	return NULL;
+struct csv *mergeCSVs(struct csv **csvs, unsigned int size, char *sortBy) 
+{	
+	int i;
+	//Array of pointers to row in every csv file.
+	int *positions = calloc(1, sizeof(int) * size);
+	int lowestPosition;
+
+	if (size == 0) {
+		printf("No CSV files found in directory.\n");
+		return 0;
+	}
+
+	//find the indexes of the desired field to sort by; color = 0, director_name = 1 ...
+	int numberOfSortBys = 1;
+	char *query = sortBy;
+	for (i=0; query[i]!='\0'; i++) 
+	{
+		if (query[i] == ',') 
+		{
+			numberOfSortBys += 1;
+		}
+	}
+	
+	//all the sortBy values separated
+	char **arrayOfSortBys = (char **)malloc(numberOfSortBys * sizeof(char *));
+	int counter = 0;
+
+	
+	//parse out the different sortBy values
+	char *temp = query;
+	for (i=0; query[i]!='\0'; i++) 
+	{
+		if (query[i] == ',') 
+		{
+			char *sortVal = (char *) malloc((&(query[i])-temp+1) * sizeof(char));
+			memcpy(sortVal, temp, (&(query[i])-temp));
+			sortVal[&(query[i])-temp] = '\0';
+			arrayOfSortBys[counter] = sortVal;
+			counter++;
+			temp=&(query[i])+1;
+		}
+	}
+	
+	//for the last value after the last comma
+	char *sortVal = (char *) malloc((&(query[i])-temp+1) * sizeof(char));
+	memcpy(sortVal, temp, (&(query[i])-temp));
+	sortVal[&(query[i])-temp] = '\0';
+	arrayOfSortBys[counter] = sortVal;
+	//printf("sortVal: %s\n", sortVal);
+	int *indexesOfSortBys = (int *) malloc(numberOfSortBys * sizeof(int));
+	int j;
+	for (i=0; i<numberOfSortBys; i++) 
+	{
+		for (j=0; j < columns; j++) 
+		{
+			//printf("strcmp %s with %s\n", columnNames[i], arrayOfSortBys[counter]);
+			if (strcmp(csvs[0]->columnNames[j], arrayOfSortBys[i])==0) 
+			{
+				indexesOfSortBys[i] = j;
+				break;
+			}
+		}
+		//check if header is found
+		if (j == columns) 
+		{
+			printf("Error, could not find query in column names\n");
+			exit(0);
+		}
+	}
+	
+	//free the parsed character array of query
+	for (i=0; i<numberOfSortBys; i++) 
+	{
+		free(arrayOfSortBys[i]);
+	}
+	free(arrayOfSortBys);
+	
+
+
+	struct csv *mergedCSV = malloc(sizeof(struct csv));
+	mergedCSV->columnNames = malloc(sizeof(char *) * columns);
+	mergedCSV->columnTypes = malloc(sizeof(enum type) * columns);
+	mergedCSV->entries = malloc(sizeof(struct entry *) * maxEntries * size);
+
+	//Use column names and column types from first csv file.
+	for (i=0;i<columns;i++) {
+		mergedCSV->columnNames[i] = malloc(sizeof(char) * maxStringSize);
+		strcpy(mergedCSV->columnNames[i], csvs[0]->columnNames[i]);
+		mergedCSV->columnTypes[i] = csvs[0]->columnTypes[i];
+	}
+
+	while(!endPositionsReached(csvs, positions, size)) {
+		lowestPosition = 0;
+		for (i = 1 ; i < size ; i++) {
+			if (!endPositionReached(csvs[i], positions[i]) && compareValue(csvs[lowestPosition]->entries[positions[i]], csvs[i]->entries[positions[i]], csvs[i]->columnTypes, indexesOfSortBys, numberOfSortBys) == 1) {
+				lowestPosition = i;
+			}
+		}
+
+		mergedCSV->entries[mergedCSV->numEntries++] = copyEntry(csvs[lowestPosition]->entries[positions[lowestPosition]]);
+		positions[lowestPosition]++;
+
+	}
+
+	free(indexesOfSortBys);
+
+	return mergedCSV;
+
+}
+
+int endPositionsReached(struct csv **csvs, int *positions, unsigned int size) {
+	int i;
+
+	for (i=0;i<size; i++) {
+		if (!endPositionReached(csvs[i], positions[i])) {
+			return 0;
+		}
+	}
+
+	return 1;
+}
+
+int endPositionReached(struct csv *csv, int position) {
+	return csv->numEntries == position;
+}
+
+struct entry *copyEntry(struct entry *src) {
+	struct entry *ret = malloc(sizeof(struct entry));
+	ret->values = malloc(sizeof(union value) * columns);
+	int i;
+
+	for (i = 0 ; i < columns ; i++) {
+		ret->values[i] = src->values[i];
+	}
+
+	return ret;
 }
 
 void mergesortMovieList(struct csv *csv, int *indexesOfSortBys, enum type *columnTypes, int numberOfSortBys) 
@@ -630,7 +763,7 @@ void mergesortMovieList(struct csv *csv, int *indexesOfSortBys, enum type *colum
 	long high = csv->numEntries-1;
 	
 	//start mergeSort
-	MergeSort(low, high, entries, columnTypes, indexesOfSortBys, numberOfSortBys);
+	mergeSort(low, high, entries, columnTypes, indexesOfSortBys, numberOfSortBys);
 	
 }
 
@@ -639,9 +772,9 @@ void mergeSort(long low, long high, struct entry** entries, enum type *columnTyp
 	//split up array until single blocks are made
 	if (low < high){
 		//lower array has the "mid" element
-		MergeSort(low, ((low+high)/2), entries, columnTypes, compareIndexes, numberOfSortBys);
-		MergeSort(((low+high)/2)+1, high, entries, columnTypes, compareIndexes, numberOfSortBys);
-		MergeParts(low, high, entries, columnTypes, compareIndexes, numberOfSortBys);
+		mergeSort(low, ((low+high)/2), entries, columnTypes, compareIndexes, numberOfSortBys);
+		mergeSort(((low+high)/2)+1, high, entries, columnTypes, compareIndexes, numberOfSortBys);
+		mergeParts(low, high, entries, columnTypes, compareIndexes, numberOfSortBys);
 	}
 	return;
 }
