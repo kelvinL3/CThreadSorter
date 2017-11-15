@@ -18,38 +18,52 @@ unsigned int maxEntries = 10000;
 
 
 //unions and structs
-union value {
+union value 
+{
 	long intVal;
 	double decimalVal;
 	char *stringVal;
 };
 
-struct entry {
+struct entry 
+{
 	union value *values;
 };
 
-struct csv {
+struct csv 
+{
 	char **columnNames;
 	enum type *columnTypes;
 	struct entry **entries;
 	int numEntries;
 };
 
-enum type {
+enum type 
+{
 	string,
 	integer,
 	decimal,
 	error = -1
 };
 
-struct headerInfo {
+struct headerInfo 
+{
 	enum type *types;
 	char **columnNames;
 };
 
-struct entryInfo {
+struct entryInfo 
+{
 	struct entry **entries;
 	int numEntries;
+};
+
+struct sortFileArguments 
+{
+	char *inputDir;
+	char *outputDir;
+	char *fileName;
+	char *sortBy;
 };
 
 
@@ -73,10 +87,10 @@ int sortFile(char *inputDir, char *outputDir, char *fileName, char *sortBy);
 void mergesortMovieList(struct csv *csv, int *indexesOfSortBys, enum type *columnTypes, int numberOfSortBys);
 
 //Sorting method: recursive call, splits up array
-void MergeSort(long low, long high, struct entry** entries, enum type *columnTypes, int *compareIndexes, int numberOfSortBys);
+void mergeSort(long low, long high, struct entry** entries, enum type *columnTypes, int *compareIndexes, int numberOfSortBys);
 
 //Sorting method: regrouping
-void MergeParts(long low, long high, struct entry** entries, enum type *columnTypes, int *compareIndexes, int numberOfSortBys);
+void mergeParts(long low, long high, struct entry** entries, enum type *columnTypes, int *compareIndexes, int numberOfSortBys);
 
 //Comparing Values in an entry
 int compareValue(struct entry *tempArray1, struct entry *tempArray2, enum type *columnTypes, int *compareIndexes, int numberOfSortBys);

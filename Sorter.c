@@ -7,16 +7,23 @@
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <errno.h>
+#include <pthread.h>
 #include "Sorter.h"
 
-int main(int argc, char **argv) {
-	if (argc % 2 != 1) {
+int main(int argc, char **argv) 
+{
+	if (argc % 2 != 1) 
+	{
 		printf("Error, command line missing parameter\n");
 		return 0;
-	} else if (argc<2) {
+	} 
+	else if (argc<2) 
+	{
 		printf("Usage: ./program -c <column> -d <dirname> -o <output dirname>\n");
 		return 0;
-	} else if (argc>7) {
+	} 
+	else if (argc>7) 
+	{
 		printf("Too many arguments.  Usage: ./program -c <column> -d <dirname> -o <output dirname>\n");
 		return 0;
 	}
@@ -26,19 +33,28 @@ int main(int argc, char **argv) {
 	char *directory = NULL; 
 	char *outputDirectory = NULL;
 	int i;
-	for (i=3;i<argc;i+=2) {
-		if (!strcmp(argv[i],"-c")) {
+	for (i=3;i<argc;i+=2) 
+	{
+		if (!strcmp(argv[i],"-c")) 
+		{
 			query = argv[i+1];
-		} else if (!strcmp(argv[i],"-d")) {
+		} 
+		else if (!strcmp(argv[i],"-d")) 
+		{
 			directory = argv[i+1];
-		} else if (!strcmp(argv[i],"-o")) {
+		} 
+		else if (!strcmp(argv[i],"-o")) 
+		{
 			outputDirectory = argv[i+1];
 			DIR *dir = opendir(outputDirectory);
-			if (!dir && ENOENT == errno) {
+			if (!dir && ENOENT == errno) 
+			{
 				printf("ERROR: Cannot open output directory: %s.\n", outputDirectory);
 				exit(0);
 			}
-		} else {
+		} 
+		else 
+		{
 			printf("Usage: ./program -c <column> -d <dirname> -o <output dirname>\n");
 			return 0;
 		}
@@ -54,7 +70,8 @@ int main(int argc, char **argv) {
 }
 
 ///Parses CSV and returns a pointer to CSV.
-struct csv *parseCSV(FILE *file) {
+struct csv *parseCSV(FILE *file) 
+{
 	//Pointer to CSV file that will be returned.
 	struct csv *ret = malloc(sizeof(struct csv));
 	
@@ -71,7 +88,8 @@ struct csv *parseCSV(FILE *file) {
 }
 
 ///Parse first line of CSV and get array of data types for values.
-struct headerInfo getHeaderInfo(FILE *file) {
+struct headerInfo getHeaderInfo(FILE *file) 
+{
 
 	struct headerInfo ret;
 
@@ -86,13 +104,18 @@ struct headerInfo getHeaderInfo(FILE *file) {
 	//Ignore leading comma if exists.
 	fscanf(file, ",");
 	
-	while (!newlineFound) {
+	while (!newlineFound) 
+	{
 		currentInput = malloc(sizeof(char) * maxStringSize);
 		stringPosition = 0;
-		while (fscanf(file, "%c", &nextChar) > 0) {
-			if (nextChar == ',') {
+		while (fscanf(file, "%c", &nextChar) > 0) 
+		{
+			if (nextChar == ',') 
+			{
 				break;
-			} else if (nextChar == '\n' || nextChar == '\r') {
+			} 
+			else if (nextChar == '\n' || nextChar == '\r') 
+			{
 				fscanf(file, "\r");
 				fscanf(file, "\n");
 				newlineFound = 1;
@@ -107,7 +130,8 @@ struct headerInfo getHeaderInfo(FILE *file) {
 
 		retPosition++;
 	}
-	if (retPosition != 28) {
+	if (retPosition != 28) 
+	{
 		exit(1);
 	}
 
@@ -118,7 +142,8 @@ struct headerInfo getHeaderInfo(FILE *file) {
 }
 
 ///Retrieves CSV Entries through fscanf and returns array of entries as well as entry count.
-struct entryInfo getCSVEntries(FILE *file, enum type *columnTypes) {
+struct entryInfo getCSVEntries(FILE *file, enum type *columnTypes) 
+{
 
 	//Return value: Array of Entry Pointers.
 	struct entry **ret = malloc(sizeof(struct entry *) * maxEntries);
@@ -137,7 +162,8 @@ struct entryInfo getCSVEntries(FILE *file, enum type *columnTypes) {
 	struct entry *currentEntry;
 
 	//Loop through each line until end of file reached.
-	while (!eofReached) {
+	while (!eofReached) 
+	{
 		newlineFound = 0, stringPosition = 0, quotationMarksFound = 0, nonWhiteSpaceFound = 0;
 
 		//For each line, a new entry will be created (with an array of value pointers).
@@ -145,11 +171,14 @@ struct entryInfo getCSVEntries(FILE *file, enum type *columnTypes) {
 		currentEntry -> values = malloc(sizeof(union value) * columns);
 
 		//Loop through each character within a line until line break or end of file reached.
-		while (!newlineFound && !eofReached) {
+		while (!newlineFound && !eofReached) 
+		{
 			scanResult = fscanf(file, "%c", &next);
-			if (scanResult == EOF) {
+			if (scanResult == EOF) 
+			{
 				eofReached = 1;
-				if (stringPosition == 0) {
+				if (stringPosition == 0) 
+				{
 					break;
 				}
 				currentString = addCharacterToString(currentString, '\0', stringPosition);
@@ -162,10 +191,12 @@ struct entryInfo getCSVEntries(FILE *file, enum type *columnTypes) {
 				currentString = malloc(sizeof(char)*maxStringSize);
 				break;
 			}
-			if (next == '\r' || next == '\n') {
+			if (next == '\r' || next == '\n') 
+			{
 				fscanf(file, "\r");
 				fscanf(file, "\n");
-				if (stringPosition == 0) {
+				if (stringPosition == 0) 
+				{
 					continue;
 				}
 				currentString = addCharacterToString(currentString, '\0', stringPosition);
@@ -178,24 +209,32 @@ struct entryInfo getCSVEntries(FILE *file, enum type *columnTypes) {
 				currentString = malloc(sizeof(char)*maxStringSize);
 				newlineFound = 1;
 				break;
-			} else if (next == '"') {
+			} 
+			else if (next == '"') 
+			{
 				//If quotation marks found, ignore any commas until next quotation mark found.
 				quotationMarksFound = !quotationMarksFound;
-			} else if (next == ',' && !quotationMarksFound) {
+			} 
+			else if (next == ',' && !quotationMarksFound) 
+			{
 				currentString = addCharacterToString(currentString, '\0', stringPosition);
 				setValue(&(currentEntry -> values[currentValuePosition]), currentString, columnTypes[currentValuePosition]);
 				currentValuePosition++;
 
 				//For now, if the CSV file has too many columns in a single row, ignore the rest of that row.
 				//Should be fixed when quotation marks are handled.
-				if (currentValuePosition > columns) {
+				if (currentValuePosition > columns) 
+				{
 					newlineFound = 1;
 				}
 				stringPosition = 0;	
 
 				currentString = malloc(sizeof(char)*maxStringSize);
-			} else {
-				if (nonWhiteSpaceFound || (next != ' ' && next != '\t')) {
+			} 
+			else 
+			{
+				if (nonWhiteSpaceFound || (next != ' ' && next != '\t')) 
+				{
 					currentString = addCharacterToString(currentString, next, stringPosition++);
 					nonWhiteSpaceFound = 1;
 				}
@@ -217,23 +256,30 @@ struct entryInfo getCSVEntries(FILE *file, enum type *columnTypes) {
 	return ei;
 }
 
-enum type getTypeFromColumnName(char *name) {
+enum type getTypeFromColumnName(char *name) 
+{
 	int i;
 
-	for (i=0;i<stringValuesSize;i++) {
-		if (strcmp(stringValues[i], name) == 0) {
+	for (i=0;i<stringValuesSize;i++) 
+	{
+		if (strcmp(stringValues[i], name) == 0) 
+		{
 			return string;
 		}
 	}
 
-	for (i=0;i<intValuesSize;i++) {
-		if (strcmp(intValues[i], name) == 0) {
+	for (i=0;i<intValuesSize;i++) 
+	{
+		if (strcmp(intValues[i], name) == 0) 
+		{
 			return integer;
 		}
 	}
 
-	for (i=0;i<doubleValuesSize;i++) {
-		if (strcmp(doubleValues[i], name) == 0) {
+	for (i=0;i<doubleValuesSize;i++) 
+	{
+		if (strcmp(doubleValues[i], name) == 0) 
+		{
 			return decimal;
 		}
 	}
@@ -241,18 +287,26 @@ enum type getTypeFromColumnName(char *name) {
 }
 
 ///Debugging method to print values from the CSV.
-void printRange(struct csv *csv, int fromRow, int toRow, int columnNumber) {
+void printRange(struct csv *csv, int fromRow, int toRow, int columnNumber) 
+{
 //NOTE: ROW 2 ON EXCEL IS CONSIDERED ROW 0 HERE SINCE THE FIRST ROW CONTAINS HEADER INFO AND NOT ACTUAL DATA.
 	char *columnTypeAsString;
 
 	enum type columnType = csv->columnTypes[columnNumber];
-	if (columnType == string) {
+	if (columnType == string) 
+	{
 		columnTypeAsString = "String";
-	} else if (columnType == integer) {
+	} 
+	else if (columnType == integer) 
+	{
 		columnTypeAsString = "Integer";
-	} else if (columnType == decimal) {
+	} 
+	else if (columnType == decimal) 
+	{
 		columnTypeAsString = "Decimal";
-	} else {
+	} 
+	else 
+	{
 		printf("Error: Unknown type printing range.");
 		return;
 	}
@@ -263,12 +317,18 @@ void printRange(struct csv *csv, int fromRow, int toRow, int columnNumber) {
 	printf("Column Type: %s\n", columnTypeAsString);
 
 	int rowCounter;
-	for (rowCounter = fromRow; rowCounter <= toRow; rowCounter++) {
-		if (columnType == string) {
+	for (rowCounter = fromRow; rowCounter <= toRow; rowCounter++) 
+	{
+		if (columnType == string) 
+		{
 			printf("Row %d: %s\n", rowCounter, csv->entries[rowCounter]->values[columnNumber].stringVal);
-		} else if (columnType == integer) {
+		} 
+		else if (columnType == integer) 
+		{
 			printf("Row %d: %ld\n", rowCounter, csv->entries[rowCounter]->values[columnNumber].intVal);
-		} else if (columnType == decimal) {
+		} 
+		else if (columnType == decimal) 
+		{
 			printf("Row %d: %f\n", rowCounter, csv->entries[rowCounter]->values[columnNumber].decimalVal);
 		}
 		
@@ -276,20 +336,23 @@ void printRange(struct csv *csv, int fromRow, int toRow, int columnNumber) {
 
 }
 
-int parseDir(char *inputDir, char *outputDir, char *sortBy){
-	
+int parseDir(char *inputDir, char *outputDir, char *sortBy)
+{
 	struct dirent * pDirent;
 	DIR *dir = NULL;
 	int noOutputDir = outputDir == NULL;
-	if (inputDir == NULL) {
+	if (inputDir == NULL) 
+	{
 		inputDir = ".";
 	} 
-	if (outputDir == NULL) {
+	if (outputDir == NULL)
+	{
 		outputDir = inputDir;
 	}
 	dir = opendir(inputDir);
 	
-	if (dir == NULL) {
+	if (dir == NULL) 
+	{
 		printf("ERROR: Cannot open input directory: %s.\n", inputDir);
 		exit(0);
 	} 
@@ -299,21 +362,31 @@ int parseDir(char *inputDir, char *outputDir, char *sortBy){
 	
 	int limitChildren = 0;
 	//printf("DT_REG = %d: DT_DIR = %d\n", DT_REG, DT_DIR);
-	while (((pDirent = readdir(dir)) != NULL) && limitChildren < 300) {
+	while (((pDirent = readdir(dir)) != NULL) && limitChildren < 300) 
+	{
 		//files
-		if (isCSV(pDirent->d_name) && pDirent->d_type == DT_REG) {
-		
-			//printf("sortFile: %s in %s\n", pDirent->d_name, inputDir);
-		
-			if (fork()==0){
-				int val = sortFile(inputDir, outputDir, pDirent->d_name, sortBy);
-				exit(val);
-			} else {
-				numChildProcesses++;
-			}
+		if (isCSV(pDirent->d_name) && pDirent->d_type == DT_REG) 
+		{
+			
+			pthread_t tid;
+			printf("Before Thread\n");
+			pthread_create(&tid, NULL, threadExecuteSortFile, );
+			pthread_join(tid, NULL);  //blocks execution until thread is joined
+			printf("After Thread\n");
+			
+			
+			
+			
+			// if (fork()==0){
+			// 	int val = sortFile(inputDir, outputDir, pDirent->d_name, sortBy);
+			// 	exit(val);
+			// } else {
+			// 	numChildProcesses++;
+			// }
 			
 		} //directories
-		else if (pDirent->d_type == DT_DIR && (strcmp(pDirent->d_name, ".")) && (strcmp(pDirent->d_name, ".."))) {
+		else if (pDirent->d_type == DT_DIR && (strcmp(pDirent->d_name, ".")) && (strcmp(pDirent->d_name, ".."))) 
+		{
 			//printf("directory: %s in %s\n", pDirent->d_name, inputDir);
 			char *subDir = (char *)calloc(1, (strlen(inputDir)+strlen(pDirent->d_name)+2));
 			strcat(subDir, inputDir);
@@ -323,21 +396,28 @@ int parseDir(char *inputDir, char *outputDir, char *sortBy){
 			strcat(newOutputDir, outputDir);
 			strcat(newOutputDir, "/");
 			strcat(newOutputDir, pDirent->d_name);*/
-			if (fork()==0){
+			if (fork()==0)
+			{
 				//printf("CHILD2PID: %d", getpid());
-				if (noOutputDir) {
+				if (noOutputDir) 
+				{
 					exit(parseDir(subDir, NULL, sortBy));
-				} else {
+				} 
+				else 
+				{
 					exit(parseDir(subDir, outputDir, sortBy));
 				}
-			} else {
+			} 
+			else 
+			{
 				numChildProcesses++;
 				free(subDir);
 				//free(newOutputDir);
 			}
 		}
 		
-		if (limitChildren == 299) {
+		if (limitChildren == 299) 
+		{
 			printf("\n\n\n\nPREVENT FORK PARTY!!!\n\n\n");
 			break;
 		}
@@ -349,7 +429,8 @@ int parseDir(char *inputDir, char *outputDir, char *sortBy){
 	int pid = 0;
 	int status = 0;
 	//printf("PID: %d, Waiting for %d threads.\n", getpid(), numChildProcesses);
-	for (i=0;i<numChildProcesses;i++) {
+	for (i=0;i<numChildProcesses;i++) 
+	{
 		pid = wait(&status);
 		printf("%d ", pid);
 		//printf("PID was returned to Parent: %d\n", pid);
@@ -360,9 +441,24 @@ int parseDir(char *inputDir, char *outputDir, char *sortBy){
 	return totalNumProcesses;
 }
 
-int sortFile(char *inputDir, char *outputDir, char *fileName, char *sortBy){
+void *threadExecuteSortFile(void *hi)
+{
+	//char *inputDir, char *outputDir, char *fileName, char *sortBy
+	sortFile();
+	return NULL;
+}
+
+void *threadExecuteDirectory(void *hi)
+{
+	sortFile();
+	return NULL;
+}
+
+int sortFile(char *inputDir, char *outputDir, char *fileName, char *sortBy)
+{
 	FILE *in;
-	if (inputDir != NULL) {
+	if (inputDir != NULL) 
+	{
 		char *inputLocation = calloc(1, (strlen(fileName) + strlen(inputDir) + 2) * sizeof(char));
 		strcat(inputLocation, inputDir);
 		strcat(inputLocation, "/");
@@ -370,7 +466,9 @@ int sortFile(char *inputDir, char *outputDir, char *fileName, char *sortBy){
 		in = fopen(inputLocation, "r");
 
 		free(inputLocation);
-	} else {
+	} 
+	else 
+	{
 		in = fopen(fileName, "r");
 	}
 	// remove .csv from the name
@@ -388,7 +486,8 @@ int sortFile(char *inputDir, char *outputDir, char *fileName, char *sortBy){
 	free(fileNameWithoutCSV);
 
 	FILE *out;
-	if (outputDir != NULL) {
+	if (outputDir != NULL) 
+	{
 		char *outputLocation = calloc(1, (strlen(outputFilename) + strlen(outputDir) + 2) * sizeof(char));
 		strcat(outputLocation, outputDir);
 		strcat(outputLocation, "/");
@@ -396,7 +495,9 @@ int sortFile(char *inputDir, char *outputDir, char *fileName, char *sortBy){
 		mkdir(outputDir, ACCESSPERMS);
 		out = fopen(outputLocation, "w");
 		free(outputLocation);
-	} else {
+	} 
+	else 
+	{
 		out = fopen(outputFilename, "w");
 	}
 	free(outputFilename);
@@ -413,8 +514,10 @@ int sortFile(char *inputDir, char *outputDir, char *fileName, char *sortBy){
 	int numberOfSortBys = 1;
 	int i; 
 	char *query = sortBy;
-	for (i=0; query[i]!='\0'; i++) {
-		if (query[i] == ',') {
+	for (i=0; query[i]!='\0'; i++) 
+	{
+		if (query[i] == ',') 
+		{
 			numberOfSortBys += 1;
 		}
 	}
@@ -426,8 +529,10 @@ int sortFile(char *inputDir, char *outputDir, char *fileName, char *sortBy){
 	
 	//parse out the different sortBy values
 	char *temp = query;
-	for (i=0; query[i]!='\0'; i++) {
-		if (query[i] == ',') {
+	for (i=0; query[i]!='\0'; i++) 
+	{
+		if (query[i] == ',') 
+		{
 			char *sortVal = (char *) malloc((&(query[i])-temp+1) * sizeof(char));
 			memcpy(sortVal, temp, (&(query[i])-temp));
 			sortVal[&(query[i])-temp] = '\0';
@@ -436,6 +541,7 @@ int sortFile(char *inputDir, char *outputDir, char *fileName, char *sortBy){
 			temp=&(query[i])+1;
 		}
 	}
+	
 	//for the last value after the last comma
 	char *sortVal = (char *) malloc((&(query[i])-temp+1) * sizeof(char));
 	memcpy(sortVal, temp, (&(query[i])-temp));
@@ -444,23 +550,28 @@ int sortFile(char *inputDir, char *outputDir, char *fileName, char *sortBy){
 	//printf("sortVal: %s\n", sortVal);
 	int *indexesOfSortBys = (int *) malloc(numberOfSortBys * sizeof(int));
 	int j;
-	for (i=0; i<numberOfSortBys; i++) {
-		for (j=0; j < columns; j++) {
+	for (i=0; i<numberOfSortBys; i++) 
+	{
+		for (j=0; j < columns; j++) 
+		{
 			//printf("strcmp %s with %s\n", columnNames[i], arrayOfSortBys[counter]);
-			if (strcmp(columnNames[j], arrayOfSortBys[i])==0) {
+			if (strcmp(columnNames[j], arrayOfSortBys[i])==0) 
+			{
 				indexesOfSortBys[i] = j;
 				break;
 			}
 		}
 		//check if header is found
-		if (j == columns) {
+		if (j == columns) 
+		{
 			printf("Error, could not find query in column names\n");
 			exit(0);
 		}
 	}
 	
 	//free the parsed character array of query
-	for (i=0; i<numberOfSortBys; i++) {
+	for (i=0; i<numberOfSortBys; i++) 
+	{
 		free(arrayOfSortBys[i]);
 	}
 	free(arrayOfSortBys);
@@ -477,7 +588,8 @@ int sortFile(char *inputDir, char *outputDir, char *fileName, char *sortBy){
 	return 1;
 }
 
-void mergesortMovieList(struct csv *csv, int *indexesOfSortBys, enum type *columnTypes, int numberOfSortBys) {
+void mergesortMovieList(struct csv *csv, int *indexesOfSortBys, enum type *columnTypes, int numberOfSortBys) 
+{
 	
 	struct entry** entries = csv->entries;
 	long low = 0;
@@ -489,7 +601,8 @@ void mergesortMovieList(struct csv *csv, int *indexesOfSortBys, enum type *colum
 	
 }
 
-void MergeSort(long low, long high, struct entry** entries, enum type *columnTypes, int *compareIndexes, int numberOfSortBys){
+void mergeSort(long low, long high, struct entry** entries, enum type *columnTypes, int *compareIndexes, int numberOfSortBys)
+{
 	//split up array until single blocks are made
 	if (low < high){
 		//lower array has the "mid" element
@@ -500,7 +613,8 @@ void MergeSort(long low, long high, struct entry** entries, enum type *columnTyp
 	return;
 }
 
-void MergeParts(long low, long high, struct entry** entries, enum type *columnTypes, int *compareIndexes, int numberOfSortBys){
+void mergeParts(long low, long high, struct entry** entries, enum type *columnTypes, int *compareIndexes, int numberOfSortBys)
+{
 	// (low+high)/2 is part of the lower array
 	long  mid = (low+high)/2;
 	
@@ -512,15 +626,18 @@ void MergeParts(long low, long high, struct entry** entries, enum type *columnTy
 	tempArray1 = malloc(sizeof(struct entry *)*(mid-low+1)); 
 	tempArray2 = malloc(sizeof(struct entry *)*(high-mid));
 	int i;
-	for (i=0; i<mid-low+1; i++){
+	for (i=0; i<mid-low+1; i++)
+	{
 		tempArray1[i] = entries[low+i];
 	}
-	for (i=0; i<high-mid; i++){
+	for (i=0; i<high-mid; i++)
+	{
 		tempArray2[i] = entries[mid+1+i];
 	}
 	
 	//check if memory was not properly allocated by malloc
-	if (tempArray1==NULL || tempArray2==NULL){
+	if (tempArray1==NULL || tempArray2==NULL)
+	{
 		printf("Error in allocation of memory\n");
 		exit(0);
 	}
@@ -531,15 +648,19 @@ void MergeParts(long low, long high, struct entry** entries, enum type *columnTy
 	long index1 = low; 
 	//for the second temporary array
 	long index2 = mid+1; 
-	while (index1 <= mid && index2 <= high) { //the lower array gets the middle element
+	while (index1 <= mid && index2 <= high) 
+	{ //the lower array gets the middle element
 		//compare succeeding elements in tempArray1 vs succeeding elements in tempArray2
 		//dereference tempArray(1,2) at an index, dereference and grab values, dereference and grab string, decimal, or float value
 		//compareValue returns -1 when element in tempArray1 is smaller and 1 whenelement in tempArray2 is bigger
-		if (compareValue((tempArray1[index1-low]), (tempArray2[index2-(mid+1)]), columnTypes, compareIndexes, numberOfSortBys) == -1) {
+		if (compareValue((tempArray1[index1-low]), (tempArray2[index2-(mid+1)]), columnTypes, compareIndexes, numberOfSortBys) == -1) 
+		{
 			//if tempArray1 has the smaller value or they're equal: this makes merge sort stable
 			entries[insertLocation] = tempArray1[index1-low];
 			index1++;
-		} else { //if tempArray2  has the smalller value
+		} 
+		else 
+		{ //if tempArray2  has the smalller value
 			entries[insertLocation] = tempArray2[index2-(mid+1)];
 			index2++;
 		}
@@ -548,14 +669,16 @@ void MergeParts(long low, long high, struct entry** entries, enum type *columnTy
 	}
 	
 	//if tempArray1 still has more entries, put at the end of entries
-	while (index1 <= mid) {
+	while (index1 <= mid) 
+	{
 		entries[insertLocation] = tempArray1[index1-low];
 		index1++;
 		insertLocation++;
 	}
 
 	//if tempArray2 still has more entries, put at the end of entries
-	while (index2 <= high) {
+	while (index2 <= high) 
+	{
 		entries[insertLocation] = tempArray2[index2-(mid+1)];
 		index2++;
 		insertLocation++;
@@ -567,7 +690,8 @@ void MergeParts(long low, long high, struct entry** entries, enum type *columnTy
 	return;
 } 
 
-int compareValue(struct entry *tempArray1, struct entry *tempArray2, enum type *columnTypes, int *compareIndexes, int numberOfSortBys) {
+int compareValue(struct entry *tempArray1, struct entry *tempArray2, enum type *columnTypes, int *compareIndexes, int numberOfSortBys) 
+{
 	//the values could be string, integer, or decimal
 	int counter = 0;
 	union value *location1;
@@ -578,44 +702,67 @@ int compareValue(struct entry *tempArray1, struct entry *tempArray2, enum type *
 	//printf("compareIndexes[0] = %d", compareIndexes[0]);
 	//printf("columnTypes[0] = %d", columnTypes[0]);
 
-	while (counter < numberOfSortBys) {
+	while (counter < numberOfSortBys)
+	{
 
 		//printf("Comparing Index %d\n", compareIndexes[counter]);
 
 		location1 = &(tempArray1->values[compareIndexes[counter]]);
 		location2 = &(tempArray2->values[compareIndexes[counter]]);
 		dataType = columnTypes[compareIndexes[counter]];
-		if (dataType == string) {
+		if (dataType == string) 
+		{
 			temp = strcmp(location1->stringVal,location2->stringVal);
-			if (temp < 0) {
+			if (temp < 0) 
+			{
 				return -1; //first value is smaller or equal
-			} else if (temp > 0) {
+			} 
+			else if (temp > 0) 
+			{
 				return 1; //first value is bigger
-			} else {
+			} 
+			else 
+			{
 				counter++;
 				continue;
 			}
-		} else if (dataType == integer) {
+		} 
+		else if (dataType == integer) 
+		{
 			temp = (location1->intVal) - (location2->intVal);
-			if (temp < 0) {
+			if (temp < 0) 
+			{
 				return -1; //first value is smaller or equal
-			} else if (temp > 0) {
+			} 
+			else if (temp > 0) 
+			{
 				return 1; //first value is bigger
-			} else {
+			} 
+			else 
+			{
 				counter++;
 				continue;
 			}
-		} else if (dataType == decimal) {
+		} 
+		else if (dataType == decimal) 
+		{
 			temp = (location1->decimalVal) - (location2->decimalVal);
-			if (temp < 0) {
+			if (temp < 0) 
+			{
 				return -1; //first value is smaller or equal
-			} else if (temp > 0) {
+			} 
+			else if (temp > 0) 
+			{
 				return 1; //first value is bigger
-			} else {
+			} 
+			else 
+			{
 				counter++;
 				continue;
 			}
-		} else {
+		} 
+		else 
+		{
 			printf("Error: compareValue: %d\n", dataType);
 			exit(-1);
 		}
@@ -623,41 +770,54 @@ int compareValue(struct entry *tempArray1, struct entry *tempArray2, enum type *
 	return -1; //Both values are exactly the same ==> first value is smaller!! since mergeSort is stable
 }
 
-void printSortedColumn(struct csv *csv, int compareIndex) {
+void printSortedColumn(struct csv *csv, int compareIndex) 
+{
 	struct entry** entries = csv->entries;
 	long size = csv->numEntries;
 	int i;
-	for (i=0; i<size; i++){
+	for (i=0; i<size; i++)
+	{
 		printf("%s\n", (entries[i]->values[compareIndex]).stringVal);
 	}
 	return;
 }
 
-void printCSV(struct csv *csv, FILE *file) {
+void printCSV(struct csv *csv, FILE *file) 
+{
 	struct entry** entries = csv->entries;
 	long size = csv->numEntries;
 	int i;
 	int j;
 
-	for (i=0;i<columns;i++) {
-		if (i>0) {
+	for (i=0;i<columns;i++) 
+	{
+		if (i>0) 
+		{
 			fprintf(file, ",");
 		}
 		fprintf(file, "%s", csv->columnNames[i]);
 	}
 	fprintf(file, "\n");
 
-	for (i=0; i<size; i++){
-		for (j=0; j<columns; j++) {
-			if (j>0) {
+	for (i=0; i<size; i++)
+	{
+		for (j=0; j<columns; j++) 
+		{
+			if (j>0) 
+			{
 				fprintf(file, ",");
 			}
 			enum type columnType = csv->columnTypes[j];
-			if (columnType == string) {
+			if (columnType == string) 
+			{
 				fprintf(file, "\"%s\"", entries[i]->values[j].stringVal);
-			} else if (columnType == integer) {
+			} 
+			else if (columnType == integer) 
+			{
 				fprintf(file, "%ld", entries[i]->values[j].intVal);
-			} else if (columnType == decimal) {
+			} 
+			else if (columnType == decimal) 
+			{
 				fprintf(file, "%f", entries[i]->values[j].decimalVal);
 			}
 		}
@@ -667,14 +827,16 @@ void printCSV(struct csv *csv, FILE *file) {
 }
 
 ///Frees CSV struct pointer for future usage.
-void freeCSV(struct csv *csv) {
+void freeCSV(struct csv *csv) 
+{
 	int i;
 
 	//Free Column Types (Array of Enums)
 	free(csv->columnTypes);
 
 	//Free Each Individual Column Name (Dynamically Allocated String)
-	for (i=0;i<columns;i++) {
+	for (i=0;i<columns;i++) 
+	{
 		free(csv->columnNames[i]);
 	}
 
@@ -682,7 +844,8 @@ void freeCSV(struct csv *csv) {
 	free(csv->columnNames);
 
 	//Free Each Individual CSV Entry (Array of Value Structs)
-	for (i=0;i<maxEntries;i++) {
+	for (i=0;i<maxEntries;i++) 
+	{
 		free(csv->entries[i]);
 	}
 
@@ -693,8 +856,10 @@ void freeCSV(struct csv *csv) {
 	free(csv);
 }
 
-char *addCharacterToString(char *string, char next, int position){
-	if (position >= maxStringSize) {
+char *addCharacterToString(char *string, char next, int position) 
+{
+	if (position >= maxStringSize) 
+	{
 		maxStringSize *= 10;
 		string = realloc(string, sizeof(char) * maxStringSize);
 	}
@@ -703,8 +868,10 @@ char *addCharacterToString(char *string, char next, int position){
 	return string;
 }
 
-struct entry **addEntryToArray(struct entry **array, struct entry *entry, int position) {
-	if (position >= maxEntries) {
+struct entry **addEntryToArray(struct entry **array, struct entry *entry, int position) 
+{
+	if (position >= maxEntries) 
+	{
 		maxEntries *= 10;
 		array = realloc(array, sizeof(struct entry) * maxEntries);
 	}
@@ -713,29 +880,40 @@ struct entry **addEntryToArray(struct entry **array, struct entry *entry, int po
 	return array;
 }
 
-void setValue(union value *location, char *value, enum type dataType) {
-	if (dataType == string) {
+void setValue(union value *location, char *value, enum type dataType) 
+{
+	if (dataType == string) 
+	{
 		location->stringVal = value;
-	} else if (dataType == integer) {
+	} 
+	else if (dataType == integer) 
+	{
 		location->intVal = atoi(value);
-	} else if (dataType == decimal) {
+	} 
+	else if (dataType == decimal)
+	{
 		location->decimalVal = atof(value);
-	} else {
+	} 
+	else 
+	{
 		printf("Error: Unknown column type for value: %s.\n", value);
 	}
 }
 
-int isCSV(char *fname){
-	if (strlen(fname)<5) {
+int isCSV(char *fname)
+{
+	if (strlen(fname)<5) 
+	{
 		return 0;
 	}
 	int i = 0;
-	while (fname[i]!='\0') {
+	while (fname[i]!='\0') 
+	{
 		i++;
 	}
-	if (fname[i-4]=='.' && fname[i-3]=='c' && fname[i-2]=='s' && fname[i-1]=='v') {
+	if (fname[i-4]=='.' && fname[i-3]=='c' && fname[i-2]=='s' && fname[i-1]=='v') 
+	{
 		return 1;
 	}
-	
 	return 0;
 }
