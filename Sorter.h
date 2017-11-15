@@ -14,7 +14,13 @@ const unsigned int columns = 28;
 unsigned int maxStringSize = 5000;
 
 //Maximum allowed number of movies for input through scanf.
-unsigned int maxEntries = 10000;
+unsigned int maxEntries = 8192;
+
+//Maximum allowed number of input files.
+const unsigned int fileCap = 256;
+
+struct csv **files;
+unsigned int currentFile = 0;
 
 
 //unions and structs
@@ -82,6 +88,9 @@ int parseDir(char *inputDir, char *outputDir, char *sortBy);
 int isCSV(char *fname);
 
 int sortFile(char *inputDir, char *outputDir, char *fileName, char *sortBy);
+
+//Sorting Method: Merges CSV Files.
+struct csv *mergeCSVs(struct csv **csvs, unsigned int size);
 
 //Sorting method: setup variables
 void mergesortMovieList(struct csv *csv, int *indexesOfSortBys, enum type *columnTypes, int numberOfSortBys);
