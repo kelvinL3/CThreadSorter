@@ -387,11 +387,10 @@ int parseDir(char *inputDir, char *outputDir, char *sortBy)
 		exit(0);
 	} 
 	
-	int numChildThreads = 10;
-	int *listOfThreadIDs = (int *) malloc(numChildThreads*sizeof(int));
-	int threadIndex = 0;
+	int maxPossibleThreads = 10;
+	int *listOfThreadIDs = (int *) malloc(maxPossibleThreads*sizeof(int));
+	int numChildThreads = 0;
 	
-	int numChildProcesses = 0;
 	int totalNumThreads = 1;
 	
 	int limitChildren = 0;
@@ -411,18 +410,18 @@ int parseDir(char *inputDir, char *outputDir, char *sortBy)
 			sortFileParameters->sortBy = sortBy;
 			pthread_create(&tid, NULL, threadExecuteSortFile, (void *)sortFileParameters);
 			
-			if (threadIndex<numChildThreads)
+			if (numChildThreads<maxPossibleThreads)
 			{
-				listOfThreadIDs[threadIndex] = tid;
-				threadIndex++;
+				listOfThreadIDs[numChildThreads] = tid;
+				numChildThreads++;
 			}
 			else 
 			{
-				numChildThreads = numChildThreads*2;
-				int *tempPtr= (int *)realloc(listOfThreadIDs, numChildThreads);
+				maxPossibleThreads = maxPossibleThreads*2;
+				int *tempPtr= (int *)realloc(listOfThreadIDs, maxPossibleThreads);
 				listOfThreadIDs = tempPtr;
-				listOfThreadIDs[threadIndex] = tid;
-				threadIndex++;
+				listOfThreadIDs[numChildThreads] = tid;
+				numChildThreads++;
 			}
 			// if (fork()==0){
 			// 	int val = sortFile(inputDir, outputDir, pDirent->d_name, sortBy);
@@ -448,18 +447,18 @@ int parseDir(char *inputDir, char *outputDir, char *sortBy)
 			pthread_create(&tid, NULL, threadExecuteDirectory, (void *)sortDirParameters);
 			
 			
-			if (threadIndex<numChildThreads)
+			if (numChildThreads<maxPossibleThreads)
 			{
-				listOfThreadIDs[threadIndex] = tid;
-				threadIndex++;
+				listOfThreadIDs[numChildThreads] = tid;
+				numChildThreads++;
 			}
 			else
 			{
-				numChildThreads = numChildThreads*2;
-				int *tempPtr= (int *)realloc(listOfThreadIDs, numChildThreads);
+				maxPossibleThreads = maxPossibleThreads*2;
+				int *tempPtr= (int *)realloc(listOfThreadIDs, maxPossibleThreads);
 				listOfThreadIDs = tempPtr;
-				listOfThreadIDs[threadIndex] = tid;
-				threadIndex++;
+				listOfThreadIDs[numChildThreads] = tid;
+				numChildThreads++;
 			}
 			// if (fork()==0)
 			// {
@@ -483,14 +482,13 @@ int parseDir(char *inputDir, char *outputDir, char *sortBy)
 	closedir(dir);
 	
 	int i;
-	int pid = 0;
 	int status = 0;
 	//printf("PID: %d, Waiting for %d threads.\n", getpid(), numChildProcesses);
-	for (i=0;i<threadIndex;i++) 
+	for (i=0;i<numChildThreads;i++) 
 	{
-		pthread_join(listOfThreadIDs[threadIndex], &status);  //blocks execution until thread is joined
+		pthread_join(listOfThreadIDs[numChildThreads], &status);  //blocks execution until thread is joined
 		//pid = wait(&status);
-		printf("%d ", listOfThreadIDs[threadIndex]);
+		printf("%d ", listOfThreadIDs[numChildThreads]);
 		totalNumThreads += status;
 	}
 	free(listOfThreadIDs);
@@ -507,7 +505,7 @@ void *threadExecuteSortFile(void *args)
 
 void *threadExecuteDirectory(void *args)
 {
-	struct sortFileArguments *arguments = (struct sortFileArguments *) args;
+	struct sortDirArguments *arguments = (struct sortDirArguments *) args;
 	int noOutputDir = arguments->outputDir == NULL;
 	if (noOutputDir)
 	{
@@ -666,7 +664,7 @@ void mergesortMovieList(struct csv *csv, int *indexesOfSortBys, enum type *colum
 	long high = csv->numEntries-1;
 	
 	//start mergeSort
-	MergeSort(low, high, entries, columnTypes, indexesOfSortBys, numberOfSortBys);
+	mergeSort(low, high, entries, columnTypes, indexesOfSortBys, numberOfSortBys);
 	
 }
 
@@ -675,9 +673,9 @@ void mergeSort(long low, long high, struct entry** entries, enum type *columnTyp
 	//split up array until single blocks are made
 	if (low < high){
 		//lower array has the "mid" element
-		MergeSort(low, ((low+high)/2), entries, columnTypes, compareIndexes, numberOfSortBys);
-		MergeSort(((low+high)/2)+1, high, entries, columnTypes, compareIndexes, numberOfSortBys);
-		MergeParts(low, high, entries, columnTypes, compareIndexes, numberOfSortBys);
+		mergeSort(low, ((low+high)/2), entries, columnTypes, compareIndexes, numberOfSortBys);
+		mergeSort(((low+high)/2)+1, high, entries, columnTypes, compareIndexes, numberOfSortBys);
+		mergeParts(low, high, entries, columnTypes, compareIndexes, numberOfSortBys);
 	}
 	return;
 }
