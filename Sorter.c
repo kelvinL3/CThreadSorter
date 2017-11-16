@@ -63,6 +63,7 @@ int main(int argc, char **argv)
 	//METADATA, DO NOT DELETE
 	files = calloc(1, sizeof(struct csv *) * fileCap);
 	printf("Initial TID: %d\nTIDS of all child threads: ", (int)pthread_self());
+	printf("\n\n");
 	fflush(stdout);
 	int totalNumThreads = parseDir(directory, outputDirectory, query);
 	printf("\nTotal number of processes %d\n", totalNumThreads);
@@ -493,7 +494,7 @@ int parseDir(char *inputDir, char *outputDir, char *sortBy)
 	for (i=0;i<numChildThreads;i++) 
 	{
 		printf("Join number=%d\n", numChildThreads);
-		pthread_join(listOfThreadIDs[numChildThreads], (void *)&status);  //blocks execution until thread is joined
+		pthread_join(listOfThreadIDs[numChildThreads], (void *)&&status);  //blocks execution until thread is joined
 		//pid = wait(&status);
 		printf("%d ", listOfThreadIDs[numChildThreads]);
 		totalNumThreads += status;
