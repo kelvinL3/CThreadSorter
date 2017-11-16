@@ -481,8 +481,8 @@ int parseDir(char *inputDir, char *outputDir, char *sortBy)
 	printf("Total of numChildThreads=%d\n", numChildThreads);
 	for (i=0;i<numChildThreads;i++) 
 	{
-		printf("Join %d number=%lu\n", i, (unsigned long)listOfThreadIDs[i]);
 		pthread_join(listOfThreadIDs[i], (void *)&status);  //blocks execution until thread is joined
+		printf("Join %d number=%lu\n", i, (unsigned long)listOfThreadIDs[i]);
 		totalNumThreads += status;
 	}
 	free(listOfThreadIDs);
