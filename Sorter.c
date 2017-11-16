@@ -537,8 +537,8 @@ int sortFile(char *inputDir, char *outputDir, char *fileName, char *sortBy)
 	if (inputDir != NULL) 
 	{
 		printf("Here1a\n");
-		printf("A %d\n", strlen(inputDir));
-		printf("B %d\n", strlen(fileName));
+		printf("A %d\n", (int)strlen(inputDir));
+		printf("B %d\n", (int)strlen(fileName));
 		char *inputLocation = calloc(1, (strlen(inputDir) + strlen(fileName) + 2) * sizeof(char)); //this line is breaking
 		strcat(inputLocation, inputDir);
 		strcat(inputLocation, "/");
