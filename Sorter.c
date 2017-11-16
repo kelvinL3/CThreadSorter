@@ -466,18 +466,6 @@ int parseDir(char *inputDir, char *outputDir, char *sortBy)
 				listOfThreadIDs[numChildThreads] = tid;
 				numChildThreads++;
 			}
-			// if (fork()==0)
-			// {
-			// 	if (noOutputDir) 
-			// 	{
-			// 		exit(parseDir(subDir, NULL, sortBy));
-			// 	} 
-			// 	else 
-			// 	{
-			// 		exit(parseDir(subDir, outputDir, sortBy));
-			// 	}
-			// } 
-			// else 
 			// {
 			// 	numChildProcesses++;
 			// 	free(subDir);
@@ -493,10 +481,10 @@ int parseDir(char *inputDir, char *outputDir, char *sortBy)
 	printf("Total of numChildThreads=%d\n", numChildThreads);
 	for (i=0;i<numChildThreads;i++) 
 	{
-		printf("Join number=%d\n", numChildThreads);
-		pthread_join(listOfThreadIDs[numChildThreads], (void *)&status);  //blocks execution until thread is joined
+		printf("Join number=%d\n", i);
+		pthread_join(listOfThreadIDs[i], (void *)&status);  //blocks execution until thread is joined
 		//pid = wait(&status);
-		printf("%d ", listOfThreadIDs[numChildThreads]);
+		printf("%d ", listOfThreadIDs[i]);
 		totalNumThreads += status;
 	}
 	free(listOfThreadIDs);
