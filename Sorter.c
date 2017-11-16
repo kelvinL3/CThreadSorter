@@ -12,6 +12,12 @@
 
 int main(int argc, char **argv) 
 {
+	int ar=0;
+	for (ar=0; ar<argc; ar++)
+	{
+		printf("%d, %s\n", ar, argv[ar]);
+	}
+	
 	if (argc % 2 != 1) 
 	{
 		printf("Error, command line missing parameter\n");
@@ -33,8 +39,9 @@ int main(int argc, char **argv)
 	char *directory = NULL; 
 	char *outputDirectory = NULL;
 	int i;
-	for (i=3;i<argc;i+=2) 
+	for (i=1;i<argc;i+=2) 
 	{
+		printf("Argc=%d is %s \n", i, argv[i]);
 		if (!strcmp(argv[i],"-c")) 
 		{
 			query = argv[i+1];
@@ -60,35 +67,41 @@ int main(int argc, char **argv)
 		}
 	}
 
-	//METADATA, DO NOT DELETE
 	files = calloc(1, sizeof(struct csv *) * fileCap);
-	printf("Initial PID: %d\nPIDS of all child processes: ", getpid());
+	currentFile = 0;
+	//METADATA, DO NOT DELETE
+	printf("Initial TID: %lu\nTIDS of all child threads: ", (unsigned long)pthread_self());
+	printf("\n\n");
 	fflush(stdout);
-	int totalNumProcesses = parseDir(directory, outputDirectory, query);
-	printf("\nTotal number of processes %d\n", totalNumProcesses);
 
+	int totalNumThreads = parseDir(directory, outputDirectory, query);
+	printf("\nTotal number of processes %d\n", totalNumThreads);
+// 	int totalNumProcesses = parseDir(directory, outputDirectory, query);
+// 	printf("\nTotal number of processes %d\n", totalNumProcesses);
 
-	//Merge all CSVs and print to AllFiles-sorted-column.csv
-	struct csv *mergedCSV = mergeCSVs(files, currentFile, query);
-	char *outputLocation;
-	if (outputDirectory != NULL) {
-		outputLocation = calloc(1, (strlen("/AllFiles-Sorted-") + strlen(outputDirectory) + strlen(argv[2]) + 1) * sizeof(char));
-		strcat(outputLocation, outputDirectory);
-		strcat(outputLocation, "/AllFiles-Sorted-");
-		strcat(outputLocation, argv[2]);
-		strcat(outputLocation, ".csv");
-	}
-	else {
-		outputLocation = calloc(1, (strlen("AllFiles-Sorted-.csv") + strlen(argv[2]) + 1) * sizeof(char));
-		strcat(outputLocation, "AllFiles-Sorted-");
-		strcat(outputLocation, argv[2]);
-		strcat(outputLocation, ".csv");
-	}
-	FILE *out = fopen(outputLocation, "w");
-	free(outputLocation);
+  
+	// //Aaron's shit
+	// //Merge all CSVs and print to AllFiles-sorted-column.csv
+	// struct csv *mergedCSV = mergeCSVs(files, currentFile);
+	// char *outputLocation;
+	// if (outputDirectory != NULL) {
+	// 	outputLocation = calloc(1, (strlen("/AllFiles-Sorted-") + strlen(outputDirectory) + strlen(argv[2]) + 1) * sizeof(char));
+	// 	strcat(outputLocation, outputDirectory);
+	// 	strcat(outputLocation, "/AllFiles-Sorted-");
+	// 	strcat(outputLocation, argv[2]);
+	// 	strcat(outputLocation, ".csv");
+	// }
+	// else {
+	// 	outputLocation = calloc(1, (strlen("AllFiles-Sorted-.csv") + strlen(argv[2]) + 1) * sizeof(char));
+	// 	strcat(outputLocation, "AllFiles-Sorted-");
+	// 	strcat(outputLocation, argv[2]);
+	// 	strcat(outputLocation, ".csv");
+	// }
+	// FILE *out = fopen(outputLocation, "w");
+	// free(outputLocation);
 
-	printCSV(mergedCSV, out);
-
+	// printCSV(mergedCSV, out);
+	
 	for (i=0;i<currentFile;i++) {
 		freeCSV(files[i]);
 	}
@@ -111,7 +124,7 @@ struct csv *parseCSV(FILE *file)
 	struct entryInfo entryInfo = getCSVEntries(file, ret->columnTypes);
 	ret->entries = entryInfo.entries;
 	ret->numEntries = entryInfo.numEntries;
-
+	
 	files[currentFile++] = ret;
 	
 	return ret;
@@ -368,16 +381,18 @@ void printRange(struct csv *csv, int fromRow, int toRow, int columnNumber)
 
 int parseDir(char *inputDir, char *outputDir, char *sortBy)
 {
+	printf("\nParseDir Called with inputDir=%s, outputDir=%s, sortBy=%s\n", inputDir, outputDir, sortBy);
 	struct dirent * pDirent;
 	DIR *dir = NULL;
-	int noOutputDir = outputDir == NULL;
+	
+	char *effectiveOutputDir = outputDir;
 	if (inputDir == NULL) 
 	{
 		inputDir = ".";
 	} 
 	if (outputDir == NULL)
 	{
-		outputDir = inputDir;
+		effectiveOutputDir = inputDir;
 	}
 	dir = opendir(inputDir);
 	
@@ -387,120 +402,157 @@ int parseDir(char *inputDir, char *outputDir, char *sortBy)
 		exit(0);
 	} 
 	
-	int numChildProcesses = 0;
-	int totalNumProcesses = 1;
+	int maxPossibleThreads = 10;
+	unsigned long *listOfThreadIDs = (unsigned long *) malloc(maxPossibleThreads*sizeof(unsigned long));
+	int numChildThreads = 0;
+	
+	int totalNumThreads = 1;
 	
 	int limitChildren = 0;
-	//printf("DT_REG = %d: DT_DIR = %d\n", DT_REG, DT_DIR);
 	while (((pDirent = readdir(dir)) != NULL) && limitChildren < 300) 
 	{
 		//files
 		if (isCSV(pDirent->d_name) && pDirent->d_type == DT_REG) 
 		{
-			
+			//printf("Sort File d_name=%s\n", pDirent->d_name);
 			pthread_t tid;
-			printf("Before Thread\n");
-			pthread_create(&tid, NULL, threadExecuteSortFile, );
-			pthread_join(tid, NULL);  //blocks execution until thread is joined
-			printf("After Thread\n");
-			
-			
-			
-			
+			printf("\nCreate Thread for name=%s\n", pDirent->d_name);
+			struct sortFileArguments *sortFileParameters = (struct sortFileArguments *) malloc(sizeof(struct sortFileArguments));
+			sortFileParameters->inputDir = inputDir;
+			sortFileParameters->outputDir = effectiveOutputDir;
+			sortFileParameters->fileName = (char *) calloc(1, (int)strlen(pDirent->d_name)*sizeof(char)+2);
+			strcat(sortFileParameters->fileName, pDirent->d_name);
+			//printf("pDirent->d_name=%d\n", (int)strlen(pDirent->d_name));
+			sortFileParameters->sortBy = sortBy;
+			pthread_create(&tid, NULL, threadExecuteSortFile, (void *)sortFileParameters);
+			printf("tid=%lu\n", (unsigned long)tid);
+			if (numChildThreads<maxPossibleThreads)
+			{
+				printf("Flag2\n");
+				listOfThreadIDs[numChildThreads] = tid;
+				numChildThreads++;
+			}
+			else 
+			{
+				printf("Flag3\n");
+				maxPossibleThreads = maxPossibleThreads*2;
+				unsigned long *tempPtr= (unsigned long *)realloc(listOfThreadIDs, maxPossibleThreads);
+				listOfThreadIDs = tempPtr;
+				listOfThreadIDs[numChildThreads] = tid;
+				numChildThreads++;
+			}
 			// if (fork()==0){
 			// 	int val = sortFile(inputDir, outputDir, pDirent->d_name, sortBy);
 			// 	exit(val);
 			// } else {
 			// 	numChildProcesses++;
 			// }
-			
 		} //directories
 		else if (pDirent->d_type == DT_DIR && (strcmp(pDirent->d_name, ".")) && (strcmp(pDirent->d_name, ".."))) 
 		{
-			//printf("directory: %s in %s\n", pDirent->d_name, inputDir);
+			printf("DIRECTORY: %s in %s\n", pDirent->d_name, inputDir);
+			
 			char *subDir = (char *)calloc(1, (strlen(inputDir)+strlen(pDirent->d_name)+2));
 			strcat(subDir, inputDir);
 			strcat(subDir, "/");
 			strcat(subDir, pDirent->d_name);
-			/*char *newOutputDir = (char *)calloc(1, (strlen(outputDir)+strlen(pDirent->d_name)+2));
-			strcat(newOutputDir, outputDir);
-			strcat(newOutputDir, "/");
-			strcat(newOutputDir, pDirent->d_name);*/
-			if (fork()==0)
+			
+			pthread_t tid;
+			printf("Before Thread\n");
+			struct sortDirArguments *sortDirParameters = (struct sortDirArguments *) malloc(sizeof(struct sortDirArguments));
+			sortDirParameters->subDir = subDir;
+			sortDirParameters->outputDir = outputDir;
+			sortDirParameters->sortBy = sortBy;
+			pthread_create(&tid, NULL, threadExecuteDirectory, (void *)sortDirParameters);
+			
+			
+			if (numChildThreads<maxPossibleThreads)
 			{
-				//printf("CHILD2PID: %d", getpid());
-				if (noOutputDir) 
-				{
-					exit(parseDir(subDir, NULL, sortBy));
-				} 
-				else 
-				{
-					exit(parseDir(subDir, outputDir, sortBy));
-				}
-			} 
-			else 
-			{
-				numChildProcesses++;
-				free(subDir);
-				//free(newOutputDir);
+				printf("Flag4\n");
+				listOfThreadIDs[numChildThreads] = tid;
+				numChildThreads++;
 			}
+			else
+			{
+				printf("Flag5\n");
+				maxPossibleThreads = maxPossibleThreads*2;
+				unsigned long *tempPtr= (unsigned long *)realloc(listOfThreadIDs, maxPossibleThreads);
+				listOfThreadIDs = tempPtr;
+				listOfThreadIDs[numChildThreads] = tid;
+				numChildThreads++;
+			}
+			// {
+			// 	numChildProcesses++;
+			// 	free(subDir);
+			// 	//free(newOutputDir);
+			// }
 		}
-		
-		if (limitChildren == 299) 
-		{
-			printf("\n\n\n\nPREVENT FORK PARTY!!!\n\n\n");
-			break;
-		}
-		limitChildren++;
 	}
 	closedir(dir);
 	
 	int i;
-	int pid = 0;
 	int status = 0;
 	//printf("PID: %d, Waiting for %d threads.\n", getpid(), numChildProcesses);
-	for (i=0;i<numChildProcesses;i++) 
+	printf("Total of numChildThreads=%d\n", numChildThreads);
+	for (i=0;i<numChildThreads;i++) 
 	{
-		pid = wait(&status);
-		printf("%d ", pid);
-		//printf("PID was returned to Parent: %d\n", pid);
-		//printf("Children: %d\n", WEXITSTATUS(status));
-		totalNumProcesses += WEXITSTATUS(status);
-		//printf("PID: %d, EXIT STATUS: %d, totalNumProcess = %d\n", getpid(), WEXITSTATUS(status), totalNumProcesses);
+		pthread_join(listOfThreadIDs[i], (void *)&status);  //blocks execution until thread is joined
+		printf("Join %d number=%lu\t with retval=%d\n", i, (unsigned long)listOfThreadIDs[i], (int)status);
+		totalNumThreads += status;
 	}
-	return totalNumProcesses;
+	free(listOfThreadIDs);
+	return totalNumThreads;
 }
 
-void *threadExecuteSortFile(void *hi)
+void *threadExecuteSortFile(void *args)
 {
 	//char *inputDir, char *outputDir, char *fileName, char *sortBy
-	sortFile();
+	struct sortFileArguments *arguments = (struct sortFileArguments *) args;
+	sortFile(arguments->inputDir, arguments->outputDir, arguments->fileName, arguments->sortBy);
+	free(arguments);
+	int retval = 1;
+	pthread_exit((void *)&retval);
 	return NULL;
 }
 
-void *threadExecuteDirectory(void *hi)
+void *threadExecuteDirectory(void *args)
 {
-	sortFile();
+	struct sortDirArguments *arguments = (struct sortDirArguments *) args;
+	// if (arguments->outputDir == NULL)
+	// {
+	// 	int retval = parseDir(arguments->subDir, NULL, arguments->sortBy);
+	// 	pthread_exit((void *)&retval);
+	// } 
+	// else 
+	// {
+		int retval = parseDir(arguments->subDir, arguments->outputDir, arguments->sortBy);
+		pthread_exit((void *)&retval);
+	// }
+	free(arguments);
+	free(arguments->subDir);
 	return NULL;
 }
 
 int sortFile(char *inputDir, char *outputDir, char *fileName, char *sortBy)
 {
+	
+	printf("SortFile with parameters, inputDir=%s, outputDir=%s, fileName=%s, sortBy=%s \n", inputDir, outputDir, fileName, sortBy);
+	
 	FILE *in;
 	if (inputDir != NULL) 
 	{
-		char *inputLocation = calloc(1, (strlen(fileName) + strlen(inputDir) + 2) * sizeof(char));
+		char *inputLocation = calloc(1, (strlen(inputDir) + strlen(fileName) + 2) * sizeof(char)); //this line is breaking
 		strcat(inputLocation, inputDir);
 		strcat(inputLocation, "/");
 		strcat(inputLocation, fileName);
 		in = fopen(inputLocation, "r");
-
 		free(inputLocation);
 	} 
 	else 
 	{
 		in = fopen(fileName, "r");
 	}
+	
 	// remove .csv from the name
 	char *fileNameWithoutCSV = (char *) malloc((strlen(fileName)-3)*sizeof(char));
 	memcpy(fileNameWithoutCSV, fileName, (strlen(fileName)-4));
@@ -514,7 +566,7 @@ int sortFile(char *inputDir, char *outputDir, char *fileName, char *sortBy)
 	strcat(outputFilename, ".csv");
 
 	free(fileNameWithoutCSV);
-
+	
 	FILE *out;
 	if (outputDir != NULL) 
 	{
@@ -581,6 +633,7 @@ int sortFile(char *inputDir, char *outputDir, char *fileName, char *sortBy)
 	int *indexesOfSortBys = (int *) malloc(numberOfSortBys * sizeof(int));
 	int j;
 	for (i=0; i<numberOfSortBys; i++) 
+    
 	{
 		for (j=0; j < columns; j++) 
 		{
@@ -606,13 +659,13 @@ int sortFile(char *inputDir, char *outputDir, char *fileName, char *sortBy)
 	}
 	free(arrayOfSortBys);
 	//sorts csv by sortBy
+	
 	mergesortMovieList(csv, indexesOfSortBys, csv->columnTypes, numberOfSortBys);
 	
 	free(indexesOfSortBys);
 	
 	//prints out the whole csv in sorted order
 	printCSV(csv, out);
-	
 	return 1;
 }
 

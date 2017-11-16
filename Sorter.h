@@ -72,6 +72,12 @@ struct sortFileArguments
 	char *sortBy;
 };
 
+struct sortDirArguments 
+{
+	char *subDir;
+	char *outputDir;
+	char *sortBy;
+};
 
 //CSV parsing methods
 struct csv *parseCSV(FILE *file);
@@ -86,6 +92,10 @@ void printRange(struct csv *csv, int fromRow, int toRow, int columnNumber);
 int parseDir(char *inputDir, char *outputDir, char *sortBy);
 
 int isCSV(char *fname);
+
+void *threadExecuteSortFile(void *args);
+
+void *threadExecuteDirectory(void *args);
 
 int sortFile(char *inputDir, char *outputDir, char *fileName, char *sortBy);
 
