@@ -409,6 +409,7 @@ int parseDir(char *inputDir, char *outputDir, char *sortBy)
 			sortFileParameters->outputDir = outputDir;
 			sortFileParameters->fileName = pDirent->d_name;
 			sortFileParameters->sortBy = sortBy;
+			printf("sortBy=%s\n", sortBy);
 			pthread_create(&tid, NULL, threadExecuteSortFile, (void *)sortFileParameters);
 			printf("tid=%lu\n", (unsigned long)tid);
 			if (numChildThreads<maxPossibleThreads)
@@ -522,6 +523,11 @@ void *threadExecuteDirectory(void *args)
 
 int sortFile(char *inputDir, char *outputDir, char *fileName, char *sortBy)
 {
+	if (sortFile==NULL) 
+	{
+		printf("sortFile is NULL\n");
+	}
+	
 	printf("SortFile with parameters, inputDir=%s, outputDir=%s, fileName=%s, sortBy=%s \n", inputDir, outputDir, fileName, sortBy);
 	
 	FILE *in;
