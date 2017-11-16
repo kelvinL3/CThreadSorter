@@ -536,6 +536,7 @@ int sortFile(char *inputDir, char *outputDir, char *fileName, char *sortBy)
 	FILE *in;
 	if (inputDir != NULL) 
 	{
+		printf("Here1a\n");
 		char *inputLocation = calloc(1, (strlen(fileName) + strlen(inputDir) + 2) * sizeof(char));
 		strcat(inputLocation, inputDir);
 		strcat(inputLocation, "/");
@@ -546,12 +547,18 @@ int sortFile(char *inputDir, char *outputDir, char *fileName, char *sortBy)
 	} 
 	else 
 	{
+		printf("Here1a\n");
 		in = fopen(fileName, "r");
 	}
+	
+	printf("Here2\n");
+	
 	// remove .csv from the name
 	char *fileNameWithoutCSV = (char *) malloc((strlen(fileName)-3)*sizeof(char));
 	memcpy(fileNameWithoutCSV, fileName, (strlen(fileName)-4));
 	fileNameWithoutCSV[(strlen(fileName)-4)] = '\0';
+	
+	printf("Here3\n");
 	
 	// outputFilename = filename-sorted-[sortby].csv
 	char* outputFilename = calloc(1, (strlen(fileNameWithoutCSV) + strlen("-sorted-") + strlen(sortBy) + strlen(".csv") + 1) * sizeof(char));
@@ -562,7 +569,7 @@ int sortFile(char *inputDir, char *outputDir, char *fileName, char *sortBy)
 
 	free(fileNameWithoutCSV);
 	
-	printf("Here2\n");
+	printf("Here4\n");
 	
 	FILE *out;
 	if (outputDir != NULL) 
