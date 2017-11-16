@@ -12,13 +12,13 @@
 
 int main(int argc, char **argv) 
 {
-	int ar=0;
-	for (ar=0; ar<argc; ar++)
-	{
-		printf("%s\n", argv[ar]);
-	}
-	printf("%d\n", argc);
-	printf("%s\n", argv[0]);
+	// int ar=0;
+	// for (ar=0; ar<argc; ar++)
+	// {
+	// 	printf("%s\n", argv[ar]);
+	// }
+	// printf("%d\n", argc);
+	// printf("%s\n", argv[0]);
 	
 	if (argc % 2 != 1) 
 	{
@@ -41,8 +41,9 @@ int main(int argc, char **argv)
 	char *directory = NULL; 
 	char *outputDirectory = NULL;
 	int i;
-	for (i=3;i<argc;i+=2) 
+	for (i=2;i<argc;i+=2) 
 	{
+		printf("Argc=%d is %s \n", i, argv[i]);
 		if (!strcmp(argv[i],"-c")) 
 		{
 			query = argv[i+1];
