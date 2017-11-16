@@ -62,7 +62,7 @@ int main(int argc, char **argv)
 
 	//METADATA, DO NOT DELETE
 	files = calloc(1, sizeof(struct csv *) * fileCap);
-	printf("Initial TID: %d\nTIDS of all child threads: ", (unsigned long)pthread_self());
+	printf("Initial TID: %lu\nTIDS of all child threads: ", (unsigned long)pthread_self());
 	printf("\n\n");
 	fflush(stdout);
 	int totalNumThreads = parseDir(directory, outputDirectory, query);
@@ -410,7 +410,7 @@ int parseDir(char *inputDir, char *outputDir, char *sortBy)
 			sortFileParameters->fileName = pDirent->d_name;
 			sortFileParameters->sortBy = sortBy;
 			pthread_create(&tid, NULL, threadExecuteSortFile, (void *)sortFileParameters);
-			printf("tid=%d\n", (unsigned long)tid);
+			printf("tid=%lu\n", (unsigned long)tid);
 			if (numChildThreads<maxPossibleThreads)
 			{
 				printf("Flag2\n");
@@ -481,7 +481,7 @@ int parseDir(char *inputDir, char *outputDir, char *sortBy)
 	printf("Total of numChildThreads=%d\n", numChildThreads);
 	for (i=0;i<numChildThreads;i++) 
 	{
-		printf("Join %d number=%d\n", i, (unsigned long)listOfThreadIDs[i]);
+		printf("Join %d number=%lu\n", i, (unsigned long)listOfThreadIDs[i]);
 		pthread_join(listOfThreadIDs[i], (void *)&status);  //blocks execution until thread is joined
 		totalNumThreads += status;
 	}
