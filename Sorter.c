@@ -506,7 +506,6 @@ int parseDir(char *inputDir, char *outputDir, char *sortBy)
 
 void *threadExecuteSortFile(void *args)
 {
-	printf("Here1\n");
 	//char *inputDir, char *outputDir, char *fileName, char *sortBy
 	struct sortFileArguments *arguments = (struct sortFileArguments *) args;
 	sortFile(arguments->inputDir, arguments->outputDir, arguments->fileName, arguments->sortBy);
@@ -519,17 +518,16 @@ void *threadExecuteSortFile(void *args)
 void *threadExecuteDirectory(void *args)
 {
 	struct sortDirArguments *arguments = (struct sortDirArguments *) args;
-	int noOutputDir = arguments->outputDir == NULL;
-	if (noOutputDir)
-	{
-		int retval = parseDir(arguments->subDir, NULL, arguments->sortBy);
-		pthread_exit((void *)&retval);
-	} 
-	else 
-	{
+	// if (arguments->outputDir == NULL)
+	// {
+	// 	int retval = parseDir(arguments->subDir, NULL, arguments->sortBy);
+	// 	pthread_exit((void *)&retval);
+	// } 
+	// else 
+	// {
 		int retval = parseDir(arguments->subDir, arguments->outputDir, arguments->sortBy);
 		pthread_exit((void *)&retval);
-	}
+	// }
 	free(arguments);
 	free(arguments->subDir);
 	return NULL;
@@ -543,31 +541,22 @@ int sortFile(char *inputDir, char *outputDir, char *fileName, char *sortBy)
 	FILE *in;
 	if (inputDir != NULL) 
 	{
-		printf("\tHere1a\n");
-		printf("\tA %d\n", (int)strlen(inputDir));
-		printf("\tB %d\n", (int)strlen(fileName));
 		char *inputLocation = calloc(1, (strlen(inputDir) + strlen(fileName) + 2) * sizeof(char)); //this line is breaking
 		strcat(inputLocation, inputDir);
 		strcat(inputLocation, "/");
 		strcat(inputLocation, fileName);
 		in = fopen(inputLocation, "r");
 		free(inputLocation);
-		printf("\tFinish\n");
 	} 
 	else 
 	{
-		printf("\tHere1b\n");
 		in = fopen(fileName, "r");
 	}
-	
-	printf("\tHere2\n");
 	
 	// remove .csv from the name
 	char *fileNameWithoutCSV = (char *) malloc((strlen(fileName)-3)*sizeof(char));
 	memcpy(fileNameWithoutCSV, fileName, (strlen(fileName)-4));
 	fileNameWithoutCSV[(strlen(fileName)-4)] = '\0';
-	
-	printf("\tHere3\n");
 	
 	// outputFilename = filename-sorted-[sortby].csv
 	char* outputFilename = calloc(1, (strlen(fileNameWithoutCSV) + strlen("-sorted-") + strlen(sortBy) + strlen(".csv") + 1) * sizeof(char));
@@ -577,8 +566,6 @@ int sortFile(char *inputDir, char *outputDir, char *fileName, char *sortBy)
 	strcat(outputFilename, ".csv");
 
 	free(fileNameWithoutCSV);
-	
-	printf("\tHere4\n");
 	
 	FILE *out;
 	if (outputDir != NULL) 
@@ -637,8 +624,6 @@ int sortFile(char *inputDir, char *outputDir, char *fileName, char *sortBy)
 		}
 	}
 	
-	printf("\tHere3\n");
-	
 	//for the last value after the last comma
 	char *sortVal = (char *) malloc((&(query[i])-temp+1) * sizeof(char));
 	memcpy(sortVal, temp, (&(query[i])-temp));
@@ -674,15 +659,12 @@ int sortFile(char *inputDir, char *outputDir, char *fileName, char *sortBy)
 	free(arrayOfSortBys);
 	//sorts csv by sortBy
 	
-	printf("\tHere4\n");
 	mergesortMovieList(csv, indexesOfSortBys, csv->columnTypes, numberOfSortBys);
 	
-	printf("\tHere5\n");
 	free(indexesOfSortBys);
 	
 	//prints out the whole csv in sorted order
 	printCSV(csv, out);
-	printf("\tHere6\n");
 	return 1;
 }
 
