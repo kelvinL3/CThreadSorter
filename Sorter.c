@@ -17,6 +17,8 @@ int main(int argc, char **argv)
 	{
 		printf("%s\n", argv[ar]);
 	}
+	printf("%d\n", argc);
+	printf("%s\n", argv[0]);
 	
 	if (argc % 2 != 1) 
 	{
