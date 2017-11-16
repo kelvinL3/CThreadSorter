@@ -523,9 +523,9 @@ void *threadExecuteDirectory(void *args)
 
 int sortFile(char *inputDir, char *outputDir, char *fileName, char *sortBy)
 {
-	if (sortFile==NULL) 
+	if (sortBy==NULL) 
 	{
-		printf("sortFile is NULL\n");
+		printf("sortBy is NULL\n");
 	}
 	
 	printf("SortFile with parameters, inputDir=%s, outputDir=%s, fileName=%s, sortBy=%s \n", inputDir, outputDir, fileName, sortBy);
