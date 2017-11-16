@@ -415,7 +415,7 @@ int parseDir(char *inputDir, char *outputDir, char *sortBy)
 			sortFileParameters->inputDir = inputDir;
 			sortFileParameters->outputDir = outputDir;
 			sortFileParameters->fileName = pDirent->d_name;
-			printf("pDirent->d_name=%s\n", pDirent->d_name);
+			printf("pDirent->d_name=%d\n", (int)strlen(pDirent->d_name));
 			sortFileParameters->sortBy = sortBy;
 			printf("sortBy=%s\n", sortBy);
 			pthread_create(&tid, NULL, threadExecuteSortFile, (void *)sortFileParameters);
