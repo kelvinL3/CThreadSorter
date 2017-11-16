@@ -494,7 +494,7 @@ int parseDir(char *inputDir, char *outputDir, char *sortBy)
 	for (i=0;i<numChildThreads;i++) 
 	{
 		printf("Join number=%d\n", numChildThreads);
-		pthread_join(listOfThreadIDs[numChildThreads], (void *)&&status);  //blocks execution until thread is joined
+		pthread_join(listOfThreadIDs[numChildThreads], (void *)&status);  //blocks execution until thread is joined
 		//pid = wait(&status);
 		printf("%d ", listOfThreadIDs[numChildThreads]);
 		totalNumThreads += status;
@@ -509,6 +509,7 @@ void *threadExecuteSortFile(void *args)
 	//char *inputDir, char *outputDir, char *fileName, char *sortBy
 	struct sortFileArguments *arguments = (struct sortFileArguments *) args;
 	sortFile(arguments->inputDir, arguments->outputDir, arguments->fileName, arguments->sortBy);
+	pthread_exit(1);
 	return NULL;
 }
 
@@ -518,11 +519,11 @@ void *threadExecuteDirectory(void *args)
 	int noOutputDir = arguments->outputDir == NULL;
 	if (noOutputDir)
 	{
-		exit(parseDir(arguments->subDir, NULL, arguments->sortBy));
+		pthread_exit(parseDir(arguments->subDir, NULL, arguments->sortBy));
 	} 
 	else 
 	{
-		exit(parseDir(arguments->subDir, arguments->outputDir, arguments->sortBy));
+		pthread_exit(parseDir(arguments->subDir, arguments->outputDir, arguments->sortBy));
 	}
 	return NULL;
 }
