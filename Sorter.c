@@ -12,6 +12,12 @@
 
 int main(int argc, char **argv) 
 {
+	int ar=0;
+	for (ar=0; ar<argc; ar++)
+	{
+		printf("%s\n", argv[ar]);
+	}
+	
 	if (argc % 2 != 1) 
 	{
 		printf("Error, command line missing parameter\n");
@@ -523,10 +529,6 @@ void *threadExecuteDirectory(void *args)
 
 int sortFile(char *inputDir, char *outputDir, char *fileName, char *sortBy)
 {
-	if (sortBy==NULL) 
-	{
-		printf("sortBy is NULL\n");
-	}
 	
 	printf("SortFile with parameters, inputDir=%s, outputDir=%s, fileName=%s, sortBy=%s \n", inputDir, outputDir, fileName, sortBy);
 	
