@@ -410,7 +410,7 @@ int parseDir(char *inputDir, char *outputDir, char *sortBy)
 			sortFileParameters->fileName = pDirent->d_name;
 			sortFileParameters->sortBy = sortBy;
 			pthread_create(&tid, NULL, threadExecuteSortFile, (void *)sortFileParameters);
-			printf("Flag1\n");
+			printf("tid=%d\n", tid);
 			if (numChildThreads<maxPossibleThreads)
 			{
 				printf("Flag2\n");
@@ -509,6 +509,7 @@ void *threadExecuteSortFile(void *args)
 	//char *inputDir, char *outputDir, char *fileName, char *sortBy
 	struct sortFileArguments *arguments = (struct sortFileArguments *) args;
 	sortFile(arguments->inputDir, arguments->outputDir, arguments->fileName, arguments->sortBy);
+	free(args);
 	int retval = 1;
 	pthread_exit((void *)&retval);
 	return NULL;
@@ -528,6 +529,7 @@ void *threadExecuteDirectory(void *args)
 		int retval = parseDir(arguments->subDir, arguments->outputDir, arguments->sortBy);
 		pthread_exit((void *)&retval);
 	}
+	free(args)
 	return NULL;
 }
 
