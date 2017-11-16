@@ -27,3 +27,6 @@ run4:
 
 debug:
 	gcc Sorter.c -Wall -Werror -fsanitize=address -g -o sorter -lpthread
+
+gdb:
+	gdb --args sorter -c director_name -d ./test1
