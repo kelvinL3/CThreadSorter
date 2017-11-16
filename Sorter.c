@@ -516,7 +516,7 @@ void *threadExecuteDirectory(void *args)
 		pthread_exit((void *)&retval);
 	}
 	free(arguments);
-	free(arguments->subDir)
+	free(arguments->subDir);
 	return NULL;
 }
 
