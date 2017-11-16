@@ -7,4 +7,4 @@ clean:
 run:
 	./sorter -c director_name,gross -o result -d ./test
 debug:
-	gcc Sorter.c -Wall -Werror -fsanitize=address -g -o sorter
+	gcc Sorter.c -Wall -Werror -fsanitize=address -g -o sorter -lpthread
