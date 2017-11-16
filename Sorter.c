@@ -62,7 +62,7 @@ int main(int argc, char **argv)
 
 	//METADATA, DO NOT DELETE
 	files = calloc(1, sizeof(struct csv *) * fileCap);
-	printf("Initial TID: %d\nTIDS of all child threads: ", pthread_getthreadid_np());
+	printf("Initial TID: %d\nTIDS of all child threads: ", (int)pthread_self());
 	fflush(stdout);
 	int totalNumThreads = parseDir(directory, outputDirectory, query);
 	printf("\nTotal number of processes %d\n", totalNumThreads);
