@@ -12,13 +12,11 @@
 
 int main(int argc, char **argv) 
 {
-	// int ar=0;
-	// for (ar=0; ar<argc; ar++)
-	// {
-	// 	printf("%s\n", argv[ar]);
-	// }
-	// printf("%d\n", argc);
-	// printf("%s\n", argv[0]);
+	int ar=0;
+	for (ar=0; ar<argc; ar++)
+	{
+		printf("%d, %s\n", ar, argv[ar]);
+	}
 	
 	if (argc % 2 != 1) 
 	{
