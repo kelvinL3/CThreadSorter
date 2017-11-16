@@ -39,7 +39,7 @@ int main(int argc, char **argv)
 	char *directory = NULL; 
 	char *outputDirectory = NULL;
 	int i;
-	for (i=2;i<argc;i+=2) 
+	for (i=1;i<argc;i+=2) 
 	{
 		printf("Argc=%d is %s \n", i, argv[i]);
 		if (!strcmp(argv[i],"-c")) 
