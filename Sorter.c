@@ -62,7 +62,7 @@ int main(int argc, char **argv)
 
 	//METADATA, DO NOT DELETE
 	files = calloc(1, sizeof(struct csv *) * fileCap);
-	printf("Initial TID: %d\nTIDS of all child threads: ", (int)pthread_self());
+	printf("Initial TID: %d\nTIDS of all child threads: ", (unsigned)pthread_self());
 	printf("\n\n");
 	fflush(stdout);
 	int totalNumThreads = parseDir(directory, outputDirectory, query);
@@ -410,7 +410,7 @@ int parseDir(char *inputDir, char *outputDir, char *sortBy)
 			sortFileParameters->fileName = pDirent->d_name;
 			sortFileParameters->sortBy = sortBy;
 			pthread_create(&tid, NULL, threadExecuteSortFile, (void *)sortFileParameters);
-			printf("tid=%d\n", tid);
+			printf("tid=%d\n", (unsigned)tid);
 			if (numChildThreads<maxPossibleThreads)
 			{
 				printf("Flag2\n");
