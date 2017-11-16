@@ -390,7 +390,7 @@ int parseDir(char *inputDir, char *outputDir, char *sortBy)
 	} 
 	
 	int maxPossibleThreads = 10;
-	int *listOfThreadIDs = (int *) malloc(maxPossibleThreads*sizeof(int));
+	unsigned int *listOfThreadIDs = (unsigned int *) malloc(maxPossibleThreads*sizeof(unsigned int));
 	int numChildThreads = 0;
 	
 	int totalNumThreads = 1;
@@ -481,8 +481,8 @@ int parseDir(char *inputDir, char *outputDir, char *sortBy)
 	printf("Total of numChildThreads=%d\n", numChildThreads);
 	for (i=0;i<numChildThreads;i++) 
 	{
-		printf("Join %d number=%d\n", i, listOfThreadIDs[i]);
-		//pthread_join(listOfThreadIDs[i], (void *)&status);  //blocks execution until thread is joined
+		printf("Join %d number=%d\n", i, (unsigned)listOfThreadIDs[i]);
+		pthread_join(listOfThreadIDs[i], (void *)&status);  //blocks execution until thread is joined
 		totalNumThreads += status;
 	}
 	free(listOfThreadIDs);
