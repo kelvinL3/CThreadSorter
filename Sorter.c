@@ -414,8 +414,8 @@ int parseDir(char *inputDir, char *outputDir, char *sortBy)
 			struct sortFileArguments *sortFileParameters = (struct sortFileArguments *) malloc(sizeof(struct sortFileArguments));
 			sortFileParameters->inputDir = inputDir;
 			sortFileParameters->outputDir = outputDir;
-			sortFileParameters->fileName = (char *) calloc(1, (int)strlen(pDirent->d_name));
-			strcat(sortFileParameters->fileName, pDirent->d_name);
+			sortFileParameters->fileName = (char *) calloc(1, (int)strlen(pDirent->d_name)*sizeof(char)+2);
+			memcpy(sortFileParameters->fileName, pDirent->d_name);
 			printf("pDirent->d_name=%d\n", (int)strlen(pDirent->d_name));
 			sortFileParameters->sortBy = sortBy;
 			pthread_create(&tid, NULL, threadExecuteSortFile, (void *)sortFileParameters);
