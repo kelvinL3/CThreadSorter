@@ -376,7 +376,7 @@ void printRange(struct csv *csv, int fromRow, int toRow, int columnNumber)
 
 int parseDir(char *inputDir, char *outputDir, char *sortBy)
 {
-	printf("ParseDir Called with inputDir=%s, outputDir=%s, sortBy=%s\n", inputDir, outputDir, sortBy);
+	printf("\nParseDir Called with inputDir=%s, outputDir=%s, sortBy=%s\n", inputDir, outputDir, sortBy);
 	struct dirent * pDirent;
 	DIR *dir = NULL;
 	
@@ -408,15 +408,15 @@ int parseDir(char *inputDir, char *outputDir, char *sortBy)
 		//files
 		if (isCSV(pDirent->d_name) && pDirent->d_type == DT_REG) 
 		{
-			printf("Sort File d_name=%s\n", pDirent->d_name);
+			//printf("Sort File d_name=%s\n", pDirent->d_name);
 			pthread_t tid;
-			printf("Create Thread\t\n");
+			printf("\nCreate Thread for name=%s\n", pDirent->d_name);
 			struct sortFileArguments *sortFileParameters = (struct sortFileArguments *) malloc(sizeof(struct sortFileArguments));
 			sortFileParameters->inputDir = inputDir;
 			sortFileParameters->outputDir = outputDir;
 			sortFileParameters->fileName = (char *) calloc(1, (int)strlen(pDirent->d_name)*sizeof(char)+2);
 			strcat(sortFileParameters->fileName, pDirent->d_name);
-			printf("pDirent->d_name=%d\n", (int)strlen(pDirent->d_name));
+			//printf("pDirent->d_name=%d\n", (int)strlen(pDirent->d_name));
 			sortFileParameters->sortBy = sortBy;
 			pthread_create(&tid, NULL, threadExecuteSortFile, (void *)sortFileParameters);
 			printf("tid=%lu\n", (unsigned long)tid);
