@@ -62,7 +62,7 @@ int main(int argc, char **argv)
 
 	//METADATA, DO NOT DELETE
 	files = calloc(1, sizeof(struct csv *) * fileCap);
-	printf("Initial PID: %d\nPIDS of all child processes: ", getpid());
+	printf("Initial TID: %d\nTIDS of all child threads: ", pthread_self());
 	fflush(stdout);
 	int totalNumThreads = parseDir(directory, outputDirectory, query);
 	printf("\nTotal number of processes %d\n", totalNumThreads);
@@ -368,6 +368,7 @@ void printRange(struct csv *csv, int fromRow, int toRow, int columnNumber)
 
 int parseDir(char *inputDir, char *outputDir, char *sortBy)
 {
+	printf("ParseDir Called with inputDir=%s, outputDir=%s, sortBy=%s\n", inputDir, outputDir, sortBy);
 	struct dirent * pDirent;
 	DIR *dir = NULL;
 	
@@ -394,29 +395,30 @@ int parseDir(char *inputDir, char *outputDir, char *sortBy)
 	int totalNumThreads = 1;
 	
 	int limitChildren = 0;
-	//printf("DT_REG = %d: DT_DIR = %d\n", DT_REG, DT_DIR);
 	while (((pDirent = readdir(dir)) != NULL) && limitChildren < 300) 
 	{
 		//files
 		if (isCSV(pDirent->d_name) && pDirent->d_type == DT_REG) 
 		{
-			
+			printf("Sort File d_name=%s\n", pDirent->d_name);
 			pthread_t tid;
-			printf("Before Thread\n");
+			printf("Create Thread\t\n");
 			struct sortFileArguments *sortFileParameters = (struct sortFileArguments *) malloc(sizeof(struct sortFileArguments));
 			sortFileParameters->inputDir = inputDir;
 			sortFileParameters->outputDir = outputDir;
 			sortFileParameters->fileName = pDirent->d_name;
 			sortFileParameters->sortBy = sortBy;
 			pthread_create(&tid, NULL, threadExecuteSortFile, (void *)sortFileParameters);
-			
+			printf("Flag1\n");
 			if (numChildThreads<maxPossibleThreads)
 			{
+				printf("Flag2\n");
 				listOfThreadIDs[numChildThreads] = tid;
 				numChildThreads++;
 			}
 			else 
 			{
+				printf("Flag3\n");
 				maxPossibleThreads = maxPossibleThreads*2;
 				int *tempPtr= (int *)realloc(listOfThreadIDs, maxPossibleThreads);
 				listOfThreadIDs = tempPtr;
@@ -432,7 +434,8 @@ int parseDir(char *inputDir, char *outputDir, char *sortBy)
 		} //directories
 		else if (pDirent->d_type == DT_DIR && (strcmp(pDirent->d_name, ".")) && (strcmp(pDirent->d_name, ".."))) 
 		{
-			//printf("directory: %s in %s\n", pDirent->d_name, inputDir);
+			printf("DIRECTORY: %s in %s\n", pDirent->d_name, inputDir);
+			
 			char *subDir = (char *)calloc(1, (strlen(inputDir)+strlen(pDirent->d_name)+2));
 			strcat(subDir, inputDir);
 			strcat(subDir, "/");
@@ -449,11 +452,13 @@ int parseDir(char *inputDir, char *outputDir, char *sortBy)
 			
 			if (numChildThreads<maxPossibleThreads)
 			{
+				printf("Flag4\n");
 				listOfThreadIDs[numChildThreads] = tid;
 				numChildThreads++;
 			}
 			else
 			{
+				printf("Flag5\n");
 				maxPossibleThreads = maxPossibleThreads*2;
 				int *tempPtr= (int *)realloc(listOfThreadIDs, maxPossibleThreads);
 				listOfThreadIDs = tempPtr;
@@ -484,8 +489,10 @@ int parseDir(char *inputDir, char *outputDir, char *sortBy)
 	int i;
 	int status = 0;
 	//printf("PID: %d, Waiting for %d threads.\n", getpid(), numChildProcesses);
+	printf("Total of numChildThreads=%d\n", numChildThreads);
 	for (i=0;i<numChildThreads;i++) 
 	{
+		printf("Join number=%d\n", numChildThreads);
 		pthread_join(listOfThreadIDs[numChildThreads], (void *)&status);  //blocks execution until thread is joined
 		//pid = wait(&status);
 		printf("%d ", listOfThreadIDs[numChildThreads]);
