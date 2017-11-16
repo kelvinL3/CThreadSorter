@@ -509,7 +509,8 @@ void *threadExecuteSortFile(void *args)
 	//char *inputDir, char *outputDir, char *fileName, char *sortBy
 	struct sortFileArguments *arguments = (struct sortFileArguments *) args;
 	sortFile(arguments->inputDir, arguments->outputDir, arguments->fileName, arguments->sortBy);
-	pthread_exit(1);
+	int retval = 1;
+	pthread_exit((void *)&retval);
 	return NULL;
 }
 
@@ -519,11 +520,13 @@ void *threadExecuteDirectory(void *args)
 	int noOutputDir = arguments->outputDir == NULL;
 	if (noOutputDir)
 	{
-		pthread_exit(parseDir(arguments->subDir, NULL, arguments->sortBy));
+		int retval = parseDir(arguments->subDir, NULL, arguments->sortBy);
+		pthread_exit((void *)&retval);
 	} 
 	else 
 	{
-		pthread_exit(parseDir(arguments->subDir, arguments->outputDir, arguments->sortBy));
+		int retval = parseDir(arguments->subDir, arguments->outputDir, arguments->sortBy);
+		pthread_exit((void *)&retval);
 	}
 	return NULL;
 }
