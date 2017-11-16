@@ -529,7 +529,7 @@ void *threadExecuteDirectory(void *args)
 		int retval = parseDir(arguments->subDir, arguments->outputDir, arguments->sortBy);
 		pthread_exit((void *)&retval);
 	}
-	free(args)
+	free(args);
 	return NULL;
 }
 
