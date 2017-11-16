@@ -100,7 +100,7 @@ void *threadExecuteDirectory(void *args);
 int sortFile(char *inputDir, char *outputDir, char *fileName, char *sortBy);
 
 //Sorting Method: Merges CSV Files.
-struct csv *mergeCSVs(struct csv **csvs, unsigned int size);
+struct csv *mergeCSVs(struct csv **csvs, unsigned int size, char *sortBy);
 
 //Sorting method: setup variables
 void mergesortMovieList(struct csv *csv, int *indexesOfSortBys, enum type *columnTypes, int numberOfSortBys);
@@ -125,3 +125,6 @@ void freeCSV(struct csv *csv);
 char *addCharacterToString(char *string, char next, int position);
 struct entry **addEntryToArray(struct entry **array, struct entry *entry, int position);
 void setValue(union value *location, char *value, enum type dataType);
+int endPositionsReached(struct csv **csvs, int *positions, unsigned int size);
+int endPositionReached(struct csv *csv, int position);
+struct entry *copyEntry(struct entry *src);
