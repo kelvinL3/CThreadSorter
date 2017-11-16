@@ -68,6 +68,7 @@ int main(int argc, char **argv)
 	}
 
 	files = calloc(1, sizeof(struct csv *) * fileCap);
+	currentFile = 0;
 	//METADATA, DO NOT DELETE
 	printf("Initial TID: %lu\nTIDS of all child threads: ", (unsigned long)pthread_self());
 	printf("\n\n");
@@ -123,7 +124,7 @@ struct csv *parseCSV(FILE *file)
 	struct entryInfo entryInfo = getCSVEntries(file, ret->columnTypes);
 	ret->entries = entryInfo.entries;
 	ret->numEntries = entryInfo.numEntries;
-
+	
 	files[currentFile++] = ret;
 	
 	return ret;
