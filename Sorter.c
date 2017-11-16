@@ -385,13 +385,14 @@ int parseDir(char *inputDir, char *outputDir, char *sortBy)
 	struct dirent * pDirent;
 	DIR *dir = NULL;
 	
+	char *effectiveOutputDir = outputDir;
 	if (inputDir == NULL) 
 	{
 		inputDir = ".";
 	} 
 	if (outputDir == NULL)
 	{
-		outputDir = inputDir;
+		effectiveOutputDir = inputDir;
 	}
 	dir = opendir(inputDir);
 	
@@ -418,7 +419,7 @@ int parseDir(char *inputDir, char *outputDir, char *sortBy)
 			printf("\nCreate Thread for name=%s\n", pDirent->d_name);
 			struct sortFileArguments *sortFileParameters = (struct sortFileArguments *) malloc(sizeof(struct sortFileArguments));
 			sortFileParameters->inputDir = inputDir;
-			sortFileParameters->outputDir = outputDir;
+			sortFileParameters->outputDir = effectiveOutputDir;
 			sortFileParameters->fileName = (char *) calloc(1, (int)strlen(pDirent->d_name)*sizeof(char)+2);
 			strcat(sortFileParameters->fileName, pDirent->d_name);
 			//printf("pDirent->d_name=%d\n", (int)strlen(pDirent->d_name));
