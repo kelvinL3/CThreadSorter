@@ -68,39 +68,43 @@ int main(int argc, char **argv)
 	}
 
 	//METADATA, DO NOT DELETE
-	files = calloc(1, sizeof(struct csv *) * fileCap);
 	printf("Initial TID: %lu\nTIDS of all child threads: ", (unsigned long)pthread_self());
 	printf("\n\n");
 	fflush(stdout);
 	int totalNumThreads = parseDir(directory, outputDirectory, query);
 	printf("\nTotal number of processes %d\n", totalNumThreads);
 
+	
+	
+	
+	// //Aaron's shit
+	// files = calloc(1, sizeof(struct csv *) * fileCap);
 
-	//Merge all CSVs and print to AllFiles-sorted-column.csv
-	struct csv *mergedCSV = mergeCSVs(files, currentFile);
-	char *outputLocation;
-	if (outputDirectory != NULL) {
-		outputLocation = calloc(1, (strlen("/AllFiles-Sorted-") + strlen(outputDirectory) + strlen(argv[2]) + 1) * sizeof(char));
-		strcat(outputLocation, outputDirectory);
-		strcat(outputLocation, "/AllFiles-Sorted-");
-		strcat(outputLocation, argv[2]);
-		strcat(outputLocation, ".csv");
-	}
-	else {
-		outputLocation = calloc(1, (strlen("AllFiles-Sorted-.csv") + strlen(argv[2]) + 1) * sizeof(char));
-		strcat(outputLocation, "AllFiles-Sorted-");
-		strcat(outputLocation, argv[2]);
-		strcat(outputLocation, ".csv");
-	}
-	FILE *out = fopen(outputLocation, "w");
-	free(outputLocation);
+	// //Merge all CSVs and print to AllFiles-sorted-column.csv
+	// struct csv *mergedCSV = mergeCSVs(files, currentFile);
+	// char *outputLocation;
+	// if (outputDirectory != NULL) {
+	// 	outputLocation = calloc(1, (strlen("/AllFiles-Sorted-") + strlen(outputDirectory) + strlen(argv[2]) + 1) * sizeof(char));
+	// 	strcat(outputLocation, outputDirectory);
+	// 	strcat(outputLocation, "/AllFiles-Sorted-");
+	// 	strcat(outputLocation, argv[2]);
+	// 	strcat(outputLocation, ".csv");
+	// }
+	// else {
+	// 	outputLocation = calloc(1, (strlen("AllFiles-Sorted-.csv") + strlen(argv[2]) + 1) * sizeof(char));
+	// 	strcat(outputLocation, "AllFiles-Sorted-");
+	// 	strcat(outputLocation, argv[2]);
+	// 	strcat(outputLocation, ".csv");
+	// }
+	// FILE *out = fopen(outputLocation, "w");
+	// free(outputLocation);
 
-	printCSV(mergedCSV, out);
-
-	for (i=0;i<currentFile;i++) {
-		freeCSV(files[i]);
-	}
-	free(files);
+	// printCSV(mergedCSV, out);
+	
+	// for (i=0;i<currentFile;i++) {
+	// 	freeCSV(files[i]);
+	// }
+	// free(files);
 	
 	return 0;
 }
@@ -491,7 +495,7 @@ int parseDir(char *inputDir, char *outputDir, char *sortBy)
 	for (i=0;i<numChildThreads;i++) 
 	{
 		pthread_join(listOfThreadIDs[i], (void *)&status);  //blocks execution until thread is joined
-		printf("Join %d number=%lu\t with retval=%d\n", i, (unsigned long)listOfThreadIDs[i], status);
+		printf("Join %d number=%lu\t with retval=%d\n", i, (unsigned long)listOfThreadIDs[i], (int)status);
 		totalNumThreads += status;
 	}
 	free(listOfThreadIDs);
