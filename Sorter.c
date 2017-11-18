@@ -83,25 +83,24 @@ int main(int argc, char **argv)
 	// //Aaron's shit
 	// //Merge all CSVs and print to AllFiles-sorted-column.csv
 	struct csv *mergedCSV = mergeCSVs(files, currentFile, query);
-	// char *outputLocation;
-	// if (outputDirectory != NULL) {
-	// 	outputLocation = calloc(1, (strlen("/AllFiles-Sorted-") + strlen(outputDirectory) + strlen(argv[2]) + 1) * sizeof(char));
-	// 	strcat(outputLocation, outputDirectory);
-	// 	strcat(outputLocation, "/AllFiles-Sorted-");
-	// 	strcat(outputLocation, argv[2]);
-	// 	strcat(outputLocation, ".csv");
-	// }
-	// else {
-	// 	outputLocation = calloc(1, (strlen("AllFiles-Sorted-.csv") + strlen(argv[2]) + 1) * sizeof(char));
-	// 	strcat(outputLocation, "AllFiles-Sorted-");
-	// 	strcat(outputLocation, argv[2]);
-	// 	strcat(outputLocation, ".csv");
-	// }
-	// FILE *out = fopen(outputLocation, "w");
-	// free(outputLocation);
+	char *outputLocation;
+	if (outputDirectory != NULL) {
+		outputLocation = calloc(1, (strlen("/AllFiles-Sorted-.csv") + strlen(outputDirectory) + strlen(query) + 2) * sizeof(char));
+		strcat(outputLocation, outputDirectory);
+		strcat(outputLocation, "/AllFiles-Sorted-");
+		strcat(outputLocation, query);
+		strcat(outputLocation, ".csv");
+	}
+	else {
+ 		outputLocation = calloc(1, (strlen("AllFiles-Sorted-.csv") + strlen(query) + 2) * sizeof(char));
+		strcat(outputLocation, "AllFiles-Sorted-");
+		strcat(outputLocation, query);
+		strcat(outputLocation, ".csv");
+	}
+	FILE *out = fopen(outputLocation, "w");
+	printCSV(mergedCSV, out);
 
-	// printCSV(mergedCSV, out);
-	
+	free(outputLocation);
 	for (i=0;i<currentFile;i++) {
 		freeCSV(files[i]);
 	}
