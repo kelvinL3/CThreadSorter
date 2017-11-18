@@ -82,7 +82,7 @@ int main(int argc, char **argv)
   
 	// //Aaron's shit
 	// //Merge all CSVs and print to AllFiles-sorted-column.csv
-	// struct csv *mergedCSV = mergeCSVs(files, currentFile);
+	struct csv *mergedCSV = mergeCSVs(files, currentFile, query);
 	// char *outputLocation;
 	// if (outputDirectory != NULL) {
 	// 	outputLocation = calloc(1, (strlen("/AllFiles-Sorted-") + strlen(outputDirectory) + strlen(argv[2]) + 1) * sizeof(char));
@@ -752,7 +752,7 @@ struct csv *mergeCSVs(struct csv **csvs, unsigned int size, char *sortBy)
 	mergedCSV->columnNames = malloc(sizeof(char *) * columns);
 	mergedCSV->columnTypes = malloc(sizeof(enum type) * columns);
 	mergedCSV->entries = malloc(sizeof(struct entry *) * maxEntries * size);
-
+	mergedCSV->numEntries = 0;
 	//Use column names and column types from first csv file.
 	for (i=0;i<columns;i++) {
 		mergedCSV->columnNames[i] = malloc(sizeof(char) * maxStringSize);
@@ -761,13 +761,12 @@ struct csv *mergeCSVs(struct csv **csvs, unsigned int size, char *sortBy)
 	}
 
 	while(!endPositionsReached(csvs, positions, size)) {
-		lowestPosition = 0;
-		for (i = 1 ; i < size ; i++) {
-			if (!endPositionReached(csvs[i], positions[i]) && compareValue(csvs[lowestPosition]->entries[positions[i]], csvs[i]->entries[positions[i]], csvs[i]->columnTypes, indexesOfSortBys, numberOfSortBys) == 1) {
+		lowestPosition = -1;
+		for (i = 0 ; i < size ; i++) {
+			if (!endPositionReached(csvs[i], positions[i]) && (lowestPosition == -1 ||compareValue(csvs[lowestPosition]->entries[positions[lowestPosition]], csvs[i]->entries[positions[i]], csvs[i]->columnTypes, indexesOfSortBys, numberOfSortBys) == 1)) {
 				lowestPosition = i;
 			}
 		}
-
 		mergedCSV->entries[mergedCSV->numEntries++] = copyEntry(csvs[lowestPosition]->entries[positions[lowestPosition]]);
 		positions[lowestPosition]++;
 
