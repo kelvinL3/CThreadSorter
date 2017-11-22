@@ -490,7 +490,7 @@ int parseDir(char *inputDir, char *outputDir, char *sortBy)
 	int status = 0;
 	//printf("PID: %d, Waiting for %d threads.\n", getpid(), numChildProcesses);
 	//printf("Total of numChildThreads=%d\n", numChildThreads);
-	printf("%d ", pthread_self());
+	printf("%lu ", pthread_self());
 	for (i=0;i<numChildThreads;i++) 
 	{
 		pthread_join(listOfThreadIDs[i], (void *)&status);  //blocks execution until thread is joined
@@ -508,7 +508,7 @@ void *threadExecuteSortFile(void *args)
 	sortFile(arguments->inputDir, arguments->outputDir, arguments->fileName, arguments->sortBy);
 	free(arguments);
 	int retval = 1;
-	pthread_exit((void *)&retval);
+	pthread_exit((void *)retval);
 	return NULL;
 }
 
@@ -523,7 +523,7 @@ void *threadExecuteDirectory(void *args)
 	// else 
 	// {
 		int retval = parseDir(arguments->subDir, arguments->outputDir, arguments->sortBy);
-		pthread_exit((void *)&retval);
+		pthread_exit((void *)retval);
 	// }
 	free(arguments);
 	free(arguments->subDir);
@@ -534,7 +534,7 @@ int sortFile(char *inputDir, char *outputDir, char *fileName, char *sortBy)
 {
 	
 	//printf("SortFile with parameters, inputDir=%s, outputDir=%s, fileName=%s, sortBy=%s \n", inputDir, outputDir, fileName, sortBy);
-	
+		
 	FILE *in;
 	if (inputDir != NULL) 
 	{
@@ -661,6 +661,9 @@ int sortFile(char *inputDir, char *outputDir, char *fileName, char *sortBy)
 	
 	free(indexesOfSortBys);
 	
+
+
+	printf("%lu ", pthread_self());
 	//prints out the whole csv in sorted order
 	//printCSV(csv, out);
 	return 1;
