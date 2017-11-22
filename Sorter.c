@@ -71,11 +71,11 @@ int main(int argc, char **argv)
 	currentFile = 0;
 	//METADATA, DO NOT DELETE
 	printf("Initial TID: %lu\nTIDS of all child threads: ", (unsigned long)pthread_self());
-	printf("\n\n");
+	//printf("\n\n");
 	fflush(stdout);
 
 	int totalNumThreads = parseDir(directory, outputDirectory, query);
-	printf("\nTotal number of processes %d\n", totalNumThreads);
+	printf("\nTotal number of threads %d\n", totalNumThreads);
   
 	// //Aaron's shit
 	// //Merge all CSVs and print to AllFiles-sorted-column.csv
@@ -377,7 +377,7 @@ void printRange(struct csv *csv, int fromRow, int toRow, int columnNumber)
 
 int parseDir(char *inputDir, char *outputDir, char *sortBy)
 {
-	printf("\nParseDir Called with inputDir=%s, outputDir=%s, sortBy=%s\n", inputDir, outputDir, sortBy);
+	//printf("\nParseDir Called with inputDir=%s, outputDir=%s, sortBy=%s\n", inputDir, outputDir, sortBy);
 	struct dirent * pDirent;
 	DIR *dir = NULL;
 	
@@ -412,7 +412,7 @@ int parseDir(char *inputDir, char *outputDir, char *sortBy)
 		{
 			//printf("Sort File d_name=%s\n", pDirent->d_name);
 			pthread_t tid;
-			printf("\nCreate Thread for name=%s\n", pDirent->d_name);
+			//printf("\nCreate Thread for name=%s\n", pDirent->d_name);
 			struct sortFileArguments *sortFileParameters = (struct sortFileArguments *) malloc(sizeof(struct sortFileArguments));
 			sortFileParameters->inputDir = inputDir;
 			sortFileParameters->outputDir = effectiveOutputDir;
@@ -421,16 +421,16 @@ int parseDir(char *inputDir, char *outputDir, char *sortBy)
 			//printf("pDirent->d_name=%d\n", (int)strlen(pDirent->d_name));
 			sortFileParameters->sortBy = sortBy;
 			pthread_create(&tid, NULL, threadExecuteSortFile, (void *)sortFileParameters);
-			printf("tid=%lu\n", (unsigned long)tid);
+			//printf("tid=%lu\n", (unsigned long)tid);
 			if (numChildThreads<maxPossibleThreads)
 			{
-				printf("Flag2\n");
+				//printf("Flag2\n");
 				listOfThreadIDs[numChildThreads] = tid;
 				numChildThreads++;
 			}
 			else 
 			{
-				printf("Flag3\n");
+				//printf("Flag3\n");
 				maxPossibleThreads = maxPossibleThreads*2;
 				unsigned long *tempPtr= (unsigned long *)realloc(listOfThreadIDs, maxPossibleThreads);
 				listOfThreadIDs = tempPtr;
@@ -446,7 +446,7 @@ int parseDir(char *inputDir, char *outputDir, char *sortBy)
 		} //directories
 		else if (pDirent->d_type == DT_DIR && (strcmp(pDirent->d_name, ".")) && (strcmp(pDirent->d_name, ".."))) 
 		{
-			printf("DIRECTORY: %s in %s\n", pDirent->d_name, inputDir);
+			//printf("DIRECTORY: %s in %s\n", pDirent->d_name, inputDir);
 			
 			char *subDir = (char *)calloc(1, (strlen(inputDir)+strlen(pDirent->d_name)+2));
 			strcat(subDir, inputDir);
@@ -454,7 +454,7 @@ int parseDir(char *inputDir, char *outputDir, char *sortBy)
 			strcat(subDir, pDirent->d_name);
 			
 			pthread_t tid;
-			printf("Before Thread\n");
+			//printf("Before Thread\n");
 			struct sortDirArguments *sortDirParameters = (struct sortDirArguments *) malloc(sizeof(struct sortDirArguments));
 			sortDirParameters->subDir = subDir;
 			sortDirParameters->outputDir = outputDir;
@@ -464,13 +464,13 @@ int parseDir(char *inputDir, char *outputDir, char *sortBy)
 			
 			if (numChildThreads<maxPossibleThreads)
 			{
-				printf("Flag4\n");
+				//printf("Flag4\n");
 				listOfThreadIDs[numChildThreads] = tid;
 				numChildThreads++;
 			}
 			else
 			{
-				printf("Flag5\n");
+				//printf("Flag5\n");
 				maxPossibleThreads = maxPossibleThreads*2;
 				unsigned long *tempPtr= (unsigned long *)realloc(listOfThreadIDs, maxPossibleThreads);
 				listOfThreadIDs = tempPtr;
@@ -490,7 +490,7 @@ int parseDir(char *inputDir, char *outputDir, char *sortBy)
 	int status = 0;
 	//printf("PID: %d, Waiting for %d threads.\n", getpid(), numChildProcesses);
 	//printf("Total of numChildThreads=%d\n", numChildThreads);
-	printf("%d ", pthread_self(void));
+	printf("%d ", pthread_self());
 	for (i=0;i<numChildThreads;i++) 
 	{
 		pthread_join(listOfThreadIDs[i], (void *)&status);  //blocks execution until thread is joined
@@ -533,7 +533,7 @@ void *threadExecuteDirectory(void *args)
 int sortFile(char *inputDir, char *outputDir, char *fileName, char *sortBy)
 {
 	
-	printf("SortFile with parameters, inputDir=%s, outputDir=%s, fileName=%s, sortBy=%s \n", inputDir, outputDir, fileName, sortBy);
+	//printf("SortFile with parameters, inputDir=%s, outputDir=%s, fileName=%s, sortBy=%s \n", inputDir, outputDir, fileName, sortBy);
 	
 	FILE *in;
 	if (inputDir != NULL) 
