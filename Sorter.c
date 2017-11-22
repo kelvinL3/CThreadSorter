@@ -661,7 +661,7 @@ int sortFile(char *inputDir, char *outputDir, char *fileName, char *sortBy)
 	free(indexesOfSortBys);
 	
 	//prints out the whole csv in sorted order
-	printCSV(csv, out);
+	//printCSV(csv, out);
 	return 1;
 }
 
