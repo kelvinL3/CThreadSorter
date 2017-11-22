@@ -76,9 +76,6 @@ int main(int argc, char **argv)
 
 	int totalNumThreads = parseDir(directory, outputDirectory, query);
 	printf("\nTotal number of processes %d\n", totalNumThreads);
-// 	int totalNumProcesses = parseDir(directory, outputDirectory, query);
-// 	printf("\nTotal number of processes %d\n", totalNumProcesses);
-
   
 	// //Aaron's shit
 	// //Merge all CSVs and print to AllFiles-sorted-column.csv
