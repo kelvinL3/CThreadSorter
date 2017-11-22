@@ -489,11 +489,12 @@ int parseDir(char *inputDir, char *outputDir, char *sortBy)
 	int i;
 	int status = 0;
 	//printf("PID: %d, Waiting for %d threads.\n", getpid(), numChildProcesses);
-	printf("Total of numChildThreads=%d\n", numChildThreads);
+	//printf("Total of numChildThreads=%d\n", numChildThreads);
+	printf("%d ", pthread_self(void));
 	for (i=0;i<numChildThreads;i++) 
 	{
 		pthread_join(listOfThreadIDs[i], (void *)&status);  //blocks execution until thread is joined
-		printf("Join %d number=%lu\t with retval=%d\n", i, (unsigned long)listOfThreadIDs[i], (int)status);
+		//printf("Join %d number=%lu\t with retval=%d\n", i, (unsigned long)listOfThreadIDs[i], (int)status);
 		totalNumThreads += status;
 	}
 	free(listOfThreadIDs);
