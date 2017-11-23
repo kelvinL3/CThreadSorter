@@ -564,7 +564,7 @@ int sortFile(char *inputDir, char *outputDir, char *fileName, char *sortBy)
 
 	free(fileNameWithoutCSV);
 	
-	FILE *out;
+	/*FILE *out;
 	if (outputDir != NULL) 
 	{
 		char *outputLocation = calloc(1, (strlen(outputFilename) + strlen(outputDir) + 2) * sizeof(char));
@@ -579,7 +579,7 @@ int sortFile(char *inputDir, char *outputDir, char *fileName, char *sortBy)
 	{
 		out = fopen(outputFilename, "w");
 	}
-	free(outputFilename);
+	free(outputFilename);*/
 	//struct csv takes in the whole csv file
 
 	struct csv *csv = parseCSV(in);
