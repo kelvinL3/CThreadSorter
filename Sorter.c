@@ -432,7 +432,7 @@ int parseDir(char *inputDir, char *outputDir, char *sortBy)
 			{
 				//printf("Flag3\n");
 				maxPossibleThreads = maxPossibleThreads*2;
-				unsigned long *tempPtr= (unsigned long *)realloc(listOfThreadIDs, maxPossibleThreads);
+				unsigned long *tempPtr= (unsigned long *)realloc(listOfThreadIDs, maxPossibleThreads * sizeof(unsigned long));
 				listOfThreadIDs = tempPtr;
 				listOfThreadIDs[numChildThreads] = tid;
 				numChildThreads++;
@@ -472,7 +472,7 @@ int parseDir(char *inputDir, char *outputDir, char *sortBy)
 			{
 				//printf("Flag5\n");
 				maxPossibleThreads = maxPossibleThreads*2;
-				unsigned long *tempPtr= (unsigned long *)realloc(listOfThreadIDs, maxPossibleThreads);
+				unsigned long *tempPtr= (unsigned long *)realloc(listOfThreadIDs, maxPossibleThreads * sizeof(unsigned long));
 				listOfThreadIDs = tempPtr;
 				listOfThreadIDs[numChildThreads] = tid;
 				numChildThreads++;
