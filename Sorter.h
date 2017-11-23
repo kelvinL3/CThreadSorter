@@ -20,6 +20,9 @@ unsigned int maxEntries = 8192;
 unsigned int fileCap = 8192;
 
 struct csv **files;
+sem_t *openedFiles;
+const unsigned int maxOpenedFileLimit = 900;
+
 unsigned int currentFile = 0;
 
 
@@ -122,7 +125,7 @@ void printCSV(struct csv *csv, FILE *file);
 void freeCSV(struct csv *csv);
 
 //Utility Methods
-char *addCharacterToString(char *string, char next, int position, *localMaxStringSize);
+char *addCharacterToString(char *string, char next, int position, int *localMaxStringSize);
 struct entry **addEntryToArray(struct entry **array, struct entry *entry, int position);
 void setValue(union value *location, char *value, enum type dataType);
 int endPositionsReached(struct csv **csvs, int *positions, unsigned int size);

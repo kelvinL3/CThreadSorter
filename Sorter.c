@@ -34,7 +34,8 @@ int main(int argc, char **argv)
 		return 0;
 	}
 	
-	
+	sem_init(openedFiles, 0, maxOpenedFileLimit);
+
 	char *query = NULL;
 	char *directory = NULL; 
 	char *outputDirectory = NULL;
@@ -133,6 +134,7 @@ struct csv *parseCSV(FILE *file)
 ///Parse first line of CSV and get array of data types for values.
 struct headerInfo getHeaderInfo(FILE *file) 
 {
+	int localMaxStringSize = maxStringSize;
 
 	struct headerInfo ret;
 
@@ -164,10 +166,10 @@ struct headerInfo getHeaderInfo(FILE *file)
 				newlineFound = 1;
 				break;
 			}
-			currentInput = addCharacterToString(currentInput, nextChar, stringPosition++);
+			currentInput = addCharacterToString(currentInput, nextChar, stringPosition++, &localMaxStringSize);
 		}
 		//Add null-terminating 0 to end of String.
-		currentInput = addCharacterToString(currentInput, '\0', stringPosition);
+		currentInput = addCharacterToString(currentInput, '\0', stringPosition, &localMaxStringSize);
 		types[retPosition] = getTypeFromColumnName(currentInput);
 		columnNames[retPosition] = currentInput;
 
@@ -233,7 +235,7 @@ struct entryInfo getCSVEntries(FILE *file, enum type *columnTypes)
 
 				stringPosition = 0;
 
-				currentString = malloc(sizeof(char)*localmaxStringSize);
+				currentString = malloc(sizeof(char)*localMaxStringSize);
 				break;
 			}
 			if (next == '\r' || next == '\n') 
@@ -518,6 +520,8 @@ void *threadExecuteDirectory(void *args)
 
 int sortFile(char *inputDir, char *outputDir, char *fileName, char *sortBy)
 {
+
+	sem_wait(openedFiles);
 	FILE *in;
 	if (inputDir != NULL) 
 	{
@@ -644,6 +648,8 @@ int sortFile(char *inputDir, char *outputDir, char *fileName, char *sortBy)
 	
 	free(indexesOfSortBys);
 	fclose(in);
+
+	sem_post(openedFiles);
 
 
 	printf("%lu ", pthread_self());
