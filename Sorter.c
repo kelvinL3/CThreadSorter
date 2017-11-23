@@ -233,7 +233,7 @@ struct entryInfo getCSVEntries(FILE *file, enum type *columnTypes)
 
 				stringPosition = 0;
 
-				currentString = malloc(sizeof(char)*maxStringSize);
+				currentString = malloc(sizeof(char)*localmaxStringSize);
 				break;
 			}
 			if (next == '\r' || next == '\n') 
@@ -251,7 +251,7 @@ struct entryInfo getCSVEntries(FILE *file, enum type *columnTypes)
 				stringPosition = 0;
 
 
-				currentString = malloc(sizeof(char)*maxStringSize);
+				currentString = malloc(sizeof(char)*localMaxStringSize);
 				newlineFound = 1;
 				break;
 			} 
@@ -274,7 +274,7 @@ struct entryInfo getCSVEntries(FILE *file, enum type *columnTypes)
 				}
 				stringPosition = 0;	
 
-				currentString = malloc(sizeof(char)*maxStringSize);
+				currentString = malloc(sizeof(char)*localMaxStringSize);
 			} 
 			else 
 			{
