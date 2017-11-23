@@ -17,7 +17,7 @@ unsigned int maxStringSize = 5000;
 unsigned int maxEntries = 8192;
 
 //Maximum allowed number of input files.
-const unsigned int fileCap = 256;
+unsigned int fileCap = 8192;
 
 struct csv **files;
 unsigned int currentFile = 0;

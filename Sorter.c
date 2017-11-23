@@ -121,6 +121,10 @@ struct csv *parseCSV(FILE *file)
 	ret->entries = entryInfo.entries;
 	ret->numEntries = entryInfo.numEntries;
 	
+	if (currentFile >= fileCap) {
+		fileCap *= 8;
+		files = realloc(files, sizeof(struct csv *) * fileCap);
+	}
 	files[currentFile++] = ret;
 	
 	return ret;
