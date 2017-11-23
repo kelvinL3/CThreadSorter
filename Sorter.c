@@ -402,7 +402,7 @@ int parseDir(char *inputDir, char *outputDir, char *sortBy)
 		exit(0);
 	} 
 	
-	int maxPossibleThreads = 10;
+	int maxPossibleThreads = 5000;
 	unsigned long *listOfThreadIDs = (unsigned long *) malloc(maxPossibleThreads*sizeof(unsigned long));
 	int numChildThreads = 0;
 	
