@@ -516,9 +516,6 @@ void *threadExecuteDirectory(void *args)
 
 int sortFile(char *inputDir, char *outputDir, char *fileName, char *sortBy)
 {
-	
-	//printf("SortFile with parameters, inputDir=%s, outputDir=%s, fileName=%s, sortBy=%s \n", inputDir, outputDir, fileName, sortBy);
-		
 	FILE *in;
 	if (inputDir != NULL) 
 	{
@@ -644,7 +641,7 @@ int sortFile(char *inputDir, char *outputDir, char *fileName, char *sortBy)
 	mergesortMovieList(csv, indexesOfSortBys, csv->columnTypes, numberOfSortBys);
 	
 	free(indexesOfSortBys);
-	
+	fclose(in);
 
 
 	printf("%lu ", pthread_self());
