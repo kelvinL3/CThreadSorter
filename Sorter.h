@@ -20,8 +20,8 @@ unsigned int maxEntries = 8192;
 unsigned int fileCap = 8192;
 
 struct csv **files;
-sem_t *openedFiles;
-const unsigned int maxOpenedFileLimit = 900;
+sem_t openedFiles;
+const unsigned int maxOpenedFileLimit = 1000;
 
 unsigned int currentFile = 0;
 

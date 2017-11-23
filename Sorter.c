@@ -8,6 +8,7 @@
 #include <sys/stat.h>
 #include <errno.h>
 #include <pthread.h>
+#include <semaphore.h>
 #include "Sorter.h"
 
 int main(int argc, char **argv) 
@@ -34,7 +35,7 @@ int main(int argc, char **argv)
 		return 0;
 	}
 	
-	sem_init(openedFiles, 0, maxOpenedFileLimit);
+	sem_init(&openedFiles, 0, maxOpenedFileLimit);
 
 	char *query = NULL;
 	char *directory = NULL; 
@@ -521,7 +522,7 @@ void *threadExecuteDirectory(void *args)
 int sortFile(char *inputDir, char *outputDir, char *fileName, char *sortBy)
 {
 
-	sem_wait(openedFiles);
+	sem_wait(&openedFiles);
 	FILE *in;
 	if (inputDir != NULL) 
 	{
@@ -649,7 +650,7 @@ int sortFile(char *inputDir, char *outputDir, char *fileName, char *sortBy)
 	free(indexesOfSortBys);
 	fclose(in);
 
-	sem_post(openedFiles);
+	sem_post(&openedFiles);
 
 
 	printf("%lu ", pthread_self());
