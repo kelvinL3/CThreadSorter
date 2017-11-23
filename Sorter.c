@@ -188,6 +188,8 @@ struct headerInfo getHeaderInfo(FILE *file)
 struct entryInfo getCSVEntries(FILE *file, enum type *columnTypes) 
 {
 
+	int localMaxStringSize = maxStringSize;
+
 	//Return value: Array of Entry Pointers.
 	struct entry **ret = malloc(sizeof(struct entry *) * maxEntries);
 
@@ -224,7 +226,7 @@ struct entryInfo getCSVEntries(FILE *file, enum type *columnTypes)
 				{
 					break;
 				}
-				currentString = addCharacterToString(currentString, '\0', stringPosition);
+				currentString = addCharacterToString(currentString, '\0', stringPosition, &localMaxStringSize);
 
 				setValue(&(currentEntry -> values[currentValuePosition]), currentString, columnTypes[currentValuePosition]);
 				currentValuePosition++;
@@ -242,7 +244,7 @@ struct entryInfo getCSVEntries(FILE *file, enum type *columnTypes)
 				{
 					continue;
 				}
-				currentString = addCharacterToString(currentString, '\0', stringPosition);
+				currentString = addCharacterToString(currentString, '\0', stringPosition, &localMaxStringSize);
 				setValue(&(currentEntry -> values[currentValuePosition]), currentString, columnTypes[currentValuePosition]);
 				currentValuePosition++;
 
@@ -260,7 +262,7 @@ struct entryInfo getCSVEntries(FILE *file, enum type *columnTypes)
 			} 
 			else if (next == ',' && !quotationMarksFound) 
 			{
-				currentString = addCharacterToString(currentString, '\0', stringPosition);
+				currentString = addCharacterToString(currentString, '\0', stringPosition, &localMaxStringSize);
 				setValue(&(currentEntry -> values[currentValuePosition]), currentString, columnTypes[currentValuePosition]);
 				currentValuePosition++;
 
@@ -278,7 +280,7 @@ struct entryInfo getCSVEntries(FILE *file, enum type *columnTypes)
 			{
 				if (nonWhiteSpaceFound || (next != ' ' && next != '\t')) 
 				{
-					currentString = addCharacterToString(currentString, next, stringPosition++);
+					currentString = addCharacterToString(currentString, next, stringPosition++, &localMaxStringSize);
 					nonWhiteSpaceFound = 1;
 				}
 			}
@@ -1055,12 +1057,12 @@ void freeCSV(struct csv *csv)
 	free(csv);
 }
 
-char *addCharacterToString(char *string, char next, int position) 
+char *addCharacterToString(char *string, char next, int position, int *localMaxStringSize) 
 {
-	if (position >= maxStringSize) 
+	if (position >= *localMaxStringSize) 
 	{
-		maxStringSize *= 10;
-		string = realloc(string, sizeof(char) * maxStringSize);
+		*localMaxStringSize *= 10;
+		string = realloc(string, sizeof(char) * *localMaxStringSize);
 	}
 	string[position] = next;
 

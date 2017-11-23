@@ -122,7 +122,7 @@ void printCSV(struct csv *csv, FILE *file);
 void freeCSV(struct csv *csv);
 
 //Utility Methods
-char *addCharacterToString(char *string, char next, int position);
+char *addCharacterToString(char *string, char next, int position, *localMaxStringSize);
 struct entry **addEntryToArray(struct entry **array, struct entry *entry, int position);
 void setValue(union value *location, char *value, enum type dataType);
 int endPositionsReached(struct csv **csvs, int *positions, unsigned int size);
