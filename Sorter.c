@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <dirent.h>
+#include <sys/types.h> //readdir
+#include <dirent.h> //readdir 
 #include <unistd.h>
-#include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <errno.h>
@@ -437,12 +437,6 @@ int parseDir(char *inputDir, char *outputDir, char *sortBy)
 				listOfThreadIDs[numChildThreads] = tid;
 				numChildThreads++;
 			}
-			// if (fork()==0){
-			// 	int val = sortFile(inputDir, outputDir, pDirent->d_name, sortBy);
-			// 	exit(val);
-			// } else {
-			// 	numChildProcesses++;
-			// }
 		} //directories
 		else if (pDirent->d_type == DT_DIR && (strcmp(pDirent->d_name, ".")) && (strcmp(pDirent->d_name, ".."))) 
 		{
@@ -477,19 +471,13 @@ int parseDir(char *inputDir, char *outputDir, char *sortBy)
 				listOfThreadIDs[numChildThreads] = tid;
 				numChildThreads++;
 			}
-			// {
-			// 	numChildProcesses++;
-			// 	free(subDir);
-			// 	//free(newOutputDir);
-			// }
 		}
 	}
 	closedir(dir);
 	
 	int i;
 	int status = 0;
-	//printf("PID: %d, Waiting for %d threads.\n", getpid(), numChildProcesses);
-	//printf("Total of numChildThreads=%d\n", numChildThreads);
+	
 	printf("%lu ", pthread_self());
 	for (i=0;i<numChildThreads;i++) 
 	{
@@ -515,16 +503,8 @@ void *threadExecuteSortFile(void *args)
 void *threadExecuteDirectory(void *args)
 {
 	struct sortDirArguments *arguments = (struct sortDirArguments *) args;
-	// if (arguments->outputDir == NULL)
-	// {
-	// 	int retval = parseDir(arguments->subDir, NULL, arguments->sortBy);
-	// 	pthread_exit((void *)&retval);
-	// } 
-	// else 
-	// {
-		int retval = parseDir(arguments->subDir, arguments->outputDir, arguments->sortBy);
-		pthread_exit((void *)retval);
-	// }
+	int retval = parseDir(arguments->subDir, arguments->outputDir, arguments->sortBy);
+	pthread_exit((void *)retval);
 	free(arguments->subDir);
 	free(arguments);
 	return NULL;
