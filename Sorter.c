@@ -14,10 +14,6 @@
 int main(int argc, char **argv) 
 {
 	int ar=0;
-	for (ar=0; ar<argc; ar++)
-	{
-		printf("%d, %s\n", ar, argv[ar]);
-	}
 	
 	if (argc % 2 != 1) 
 	{
@@ -36,7 +32,7 @@ int main(int argc, char **argv)
 	}
 	
 	sem_init(&openedFiles, 0, maxOpenedFileLimit);
-	lock = PTHREAD_MUTEX_INITIALIZER;
+	lock = (pthread_mutex_t) PTHREAD_MUTEX_INITIALIZER;
 
 	char *query = NULL;
 	char *directory = NULL; 
@@ -44,7 +40,6 @@ int main(int argc, char **argv)
 	int i;
 	for (i=1;i<argc;i+=2) 
 	{
-		printf("Argc=%d is %s \n", i, argv[i]);
 		if (!strcmp(argv[i],"-c")) 
 		{
 			query = argv[i+1];
@@ -125,13 +120,13 @@ struct csv *parseCSV(FILE *file)
 	ret->numEntries = entryInfo.numEntries;
 	
 
-	pthread_mutex_lock(lock);
+	pthread_mutex_lock(&lock);
 		if (currentFile >= fileCap) {
 			fileCap *= 8;
 			files = realloc(files, sizeof(struct csv *) * fileCap);
 		}
 		files[currentFile++] = ret;
-	pthread_mutex_unlock(lock);
+	pthread_mutex_unlock(&lock);
 	
 	return ret;
 }
@@ -1042,7 +1037,6 @@ void printCSV(struct csv *csv, FILE *file)
 void freeCSV(struct csv *csv) 
 {
 	int i;
-
 	//Free Column Types (Array of Enums)
 	free(csv->columnTypes);
 
@@ -1052,20 +1046,22 @@ void freeCSV(struct csv *csv)
 		free(csv->columnNames[i]);
 	}
 
+
 	//Free Column Names (Array of Dynamically Allocated Strings)
 	free(csv->columnNames);
-
 	//Free Each Individual CSV Entry (Array of Value Structs)
 	for (i=0;i<maxEntries;i++) 
 	{
 		free(csv->entries[i]);
 	}
 
+
 	//Free CSV Entries (Array of Entry Pointers)
 	free(csv->entries);
 
 	//Free CSV (Dynamically Allocated Struct)
 	free(csv);
+
 }
 
 char *addCharacterToString(char *string, char next, int position, int *localMaxStringSize) 
