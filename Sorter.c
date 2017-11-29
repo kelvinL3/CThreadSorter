@@ -36,6 +36,7 @@ int main(int argc, char **argv)
 	}
 	
 	sem_init(&openedFiles, 0, maxOpenedFileLimit);
+	lock = PTHREAD_MUTEX_INITIALIZER;
 
 	char *query = NULL;
 	char *directory = NULL; 
@@ -123,11 +124,14 @@ struct csv *parseCSV(FILE *file)
 	ret->entries = entryInfo.entries;
 	ret->numEntries = entryInfo.numEntries;
 	
-	if (currentFile >= fileCap) {
-		fileCap *= 8;
-		files = realloc(files, sizeof(struct csv *) * fileCap);
-	}
-	files[currentFile++] = ret;
+
+	pthread_mutex_lock(lock);
+		if (currentFile >= fileCap) {
+			fileCap *= 8;
+			files = realloc(files, sizeof(struct csv *) * fileCap);
+		}
+		files[currentFile++] = ret;
+	pthread_mutex_unlock(lock);
 	
 	return ret;
 }

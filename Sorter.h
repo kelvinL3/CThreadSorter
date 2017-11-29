@@ -19,6 +19,7 @@ unsigned int maxEntries = 8192;
 //Maximum allowed number of input files.
 unsigned int fileCap = 8192;
 
+pthread_mutex_t lock;
 struct csv **files;
 sem_t openedFiles;
 const unsigned int maxOpenedFileLimit = 1000;
