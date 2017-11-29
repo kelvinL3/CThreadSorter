@@ -14,7 +14,7 @@ const unsigned int columns = 28;
 unsigned int maxStringSize = 5000;
 
 //Maximum allowed number of movies for input through scanf.
-unsigned int maxEntries = 8192;
+unsigned int maxEntries = 32768;
 
 //Maximum allowed number of input files.
 unsigned int fileCap = 8192;
