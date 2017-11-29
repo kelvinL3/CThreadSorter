@@ -505,7 +505,7 @@ void *threadExecuteSortFile(void *args)
 	sortFile(arguments->inputDir, arguments->outputDir, arguments->fileName, arguments->sortBy);
 	free(arguments);
 	int retval = 1;
-	pthread_exit((void *)retval);
+	pthread_exit((void *) (intptr_t) retval);
 	return NULL;
 }
 
@@ -513,7 +513,7 @@ void *threadExecuteDirectory(void *args)
 {
 	struct sortDirArguments *arguments = (struct sortDirArguments *) args;
 	int retval = parseDir(arguments->subDir, arguments->outputDir, arguments->sortBy);
-	pthread_exit((void *)retval);
+	pthread_exit((void *) (intptr_t) retval);
 	free(arguments->subDir);
 	free(arguments);
 	return NULL;
